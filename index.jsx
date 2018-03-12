@@ -22,11 +22,7 @@ export {
   DynamicRoutes, 
 
   ConditionsPage,
-  ConditionsTable,
-
-  Condition,
-  Conditions,
-  ConditionSchema
+  ConditionsTable
 };
 
 

@@ -157,35 +157,15 @@ export default class ConditionsTable extends React.Component {
         evidenceDisplay: '',
         barcode: ''
       };
-      if (this.data.conditions[i]){
 
-        if(get(this.data.conditions[i], 'identifier[0].value')){
-          newRow.identifier = this.data.conditions[i].identifier[0].value;
-        }
-        if(this.data.conditions[i].patient){
-          newRow.patientDisplay = this.data.conditions[i].patient.display;
-        }
-        if(this.data.conditions[i].asserter){
-          newRow.asserterDisplay = this.data.conditions[i].asserter.display;
-        }
-        if(this.data.conditions[i].clinicalStatus){
-          newRow.clinicalStatus = this.data.conditions[i].clinicalStatus;
-        }
-        if(this.data.conditions[i].code){
-          if(this.data.conditions[i].code.coding && this.data.conditions[i].code.coding[0]){            
-            newRow.snomedCode = this.data.conditions[i].code.coding[0].code;
-            newRow.snomedDisplay = this.data.conditions[i].code.coding[0].display;
-          }
-        }
-        if(this.data.conditions[i].evidence && this.data.conditions[i].evidence[0]){
-          if(this.data.conditions[i].evidence[0].detail && this.data.conditions[i].evidence[0].detail[0]){            
-            newRow.evidenceDisplay = this.data.conditions[i].evidence[0].detail[0].display;
-          }
-        }
-        if(this.data.conditions[i]._id){
-          newRow.barcode = this.data.conditions[i]._id;
-        }        
-      }
+      newRow.identifier = get(this.data.conditions[i], 'identifier[0].value');
+      newRow.patientDisplay = get(this.data.conditions[i], 'patient.display');
+      newRow.asserterDisplay = get(this.data.conditions[i], 'asserter.display');
+      newRow.clinicalStatus = get(this.data.conditions[i], 'clinicalStatus');
+      newRow.snomedCode = get(this.data.conditions[i], 'code.coding[0].code');
+      newRow.snomedDisplay = get(this.data.conditions[i], 'code.coding[0].display');
+      newRow.evidenceDisplay = get(this.data.conditions[i], 'evidence[0].detail[0].display');
+      newRow.barcode = get(this.data.conditions[i], '_id');
 
       tableRows.push(
         <tr key={i} className="conditionRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
