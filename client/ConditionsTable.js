@@ -184,7 +184,7 @@ export default class ConditionsTable extends React.Component {
     }
 
     return(
-      <Table id='conditionsTable' responses hover >
+      <Table id='conditionsTable' hover >
         <thead>
           <tr>
             { this.renderTogglesHeader(this.data.displayToggle) }
