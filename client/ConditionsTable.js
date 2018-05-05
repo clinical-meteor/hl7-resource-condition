@@ -22,7 +22,8 @@ export default class ConditionsTable extends React.Component {
       displayDates: false,
       displayPatientName: false,
       displayAsserterName: false,
-      displayEvidence: false
+      displayEvidence: false,
+      displayIdentifier: false
     }
     
     if(this.props.displayPatientName){
@@ -126,7 +127,7 @@ export default class ConditionsTable extends React.Component {
   renderEvidenceHeader(displayEvidence){
     if (displayEvidence) {
       return (
-        <th className='asserterDisplay'>asserter</th>
+        <th className='asserterDisplay'>evidence</th>
       );
     }
   }
@@ -137,7 +138,20 @@ export default class ConditionsTable extends React.Component {
       );
     }
   } 
-
+  renderIdentifierHeader(displayIdentifier){
+    if (displayIdentifier) {
+      return (
+        <th className='identifier'>identifier</th>
+      );
+    }
+  }
+  renderIdentifier(displayIdentifier, identifier ){
+    if (displayIdentifier) {
+      return (
+        <td className='identifier'>{ identifier }</td>
+      );
+    }
+  } 
 
   rowClick(id){
     Session.set('conditionsUpsert', false);
@@ -152,6 +166,8 @@ export default class ConditionsTable extends React.Component {
         patientDisplay: '',
         asserterDisplay: '',
         clinicalStatus: '',
+        verificationStatus: '',
+        severity: '',
         snomedCode: '',
         snomedDisplay: '',
         evidenceDisplay: '',
@@ -162,20 +178,25 @@ export default class ConditionsTable extends React.Component {
       newRow.patientDisplay = get(this.data.conditions[i], 'patient.display');
       newRow.asserterDisplay = get(this.data.conditions[i], 'asserter.display');
       newRow.clinicalStatus = get(this.data.conditions[i], 'clinicalStatus');
+      newRow.verificationStatus = get(this.data.conditions[i], 'verificationStatus');
       newRow.snomedCode = get(this.data.conditions[i], 'code.coding[0].code');
       newRow.snomedDisplay = get(this.data.conditions[i], 'code.coding[0].display');
       newRow.evidenceDisplay = get(this.data.conditions[i], 'evidence[0].detail[0].display');
       newRow.barcode = get(this.data.conditions[i], '_id');
+      newRow.severity = get(this.data.conditions[i], 'severity.text');
 
       tableRows.push(
         <tr key={i} className="conditionRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
+          {/* <td className='identifier'>{ newRow.identifier }</td> */}
+          { this.renderIdentifier(this.data.displayToggle, this.data.conditions[i]) }
           { this.renderToggles(this.data.displayToggle, this.data.conditions[i]) }
           { this.renderPatientName(this.data.displayPatientName, newRow.patientDisplay ) } 
           { this.renderAsserterName(this.data.displayAsserterName, newRow.asserterDisplay ) } 
           <td className='clinicalStatus'>{ newRow.clinicalStatus }</td>
-          <td className='identifier'>{ newRow.identifier }</td>
+          <td className='verificationStatus'>{ newRow.verificationStatus }</td>
           <td className='snomedCode'>{ newRow.snomedCode }</td>
           <td className='snomedDisplay'>{ newRow.snomedDisplay }</td>
+          <td className='severity'>{ newRow.severity }</td>
           { this.renderEvidence(this.data.displayEvidence, newRow.evidenceDisplay) }
           { this.renderStartDate(this.data.displayDates, this.data.conditions[i].onsetDateTime) }
           { this.renderEndDate(this.data.displayDates, this.data.conditions[i].abatementDateTime) }
@@ -187,13 +208,16 @@ export default class ConditionsTable extends React.Component {
       <Table id='conditionsTable' hover >
         <thead>
           <tr>
+            {/* <th className='identifier'>identifier</th> */}
+            { this.renderIdentifierHeader(this.data.displayIdentifier) }
             { this.renderTogglesHeader(this.data.displayToggle) }
             { this.renderPatientNameHeader(this.data.displayPatientName) }
             { this.renderAsserterNameHeader(this.data.displayAsserterName) }
             <th className='clinicalStatus'>status</th>
-            <th className='identifier'>identifier</th>
+            <th className='verificationStatus'>verification</th>
             <th className='snomedCode'>code</th>
             <th className='snomedDisplay'>condition</th>
+            <th className='severity'>severity</th>
             { this.renderEvidenceHeader(this.data.displayEvidence) }
             { this.renderDateHeader(this.data.displayDates, 'start') }
             { this.renderDateHeader(this.data.displayDates, 'end') }

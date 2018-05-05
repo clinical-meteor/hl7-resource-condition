@@ -10,6 +10,7 @@ import TextField from 'material-ui/TextField';
 import { browserHistory } from 'react-router';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
+import { moment } from 'meteor/momentjs:moment'
 
 let defaultCondition = {
   "resourceType": "Condition",
@@ -107,7 +108,7 @@ export default class ConditionDetail extends React.Component {
           hintText="Onset Date" 
           container="inline" 
           mode="landscape"
-          value={ datePickerValue ? datePickerValue : ''}    
+          value={ datePickerValue ? moment(datePickerValue).format('YYYY-MM-DD') : ''}    
           onChange={ this.changeState.bind(this, 'onsetDateTime')}      
           />
       );
@@ -122,7 +123,7 @@ export default class ConditionDetail extends React.Component {
             ref='patientDisplay'
             name='patientDisplay'
             floatingLabelText='Patient'
-            value={this.data.condition.patient ? this.data.condition.patient.display : ''}
+            value={ get(this, 'data.condition.patient.display') }
             onChange={ this.changeState.bind(this, 'patientDisplay')}
             fullWidth
             /><br/>
@@ -131,7 +132,7 @@ export default class ConditionDetail extends React.Component {
             ref='asserterDisplay'
             name='asserterDisplay'
             floatingLabelText='Asserter'
-            value={this.data.condition.asserter ? this.data.condition.asserter.display : ''}
+            value={ get(this, 'data.condition.asserter.display') }
             onChange={ this.changeState.bind(this, 'asserterDisplay')}
             fullWidth
             /><br/>
@@ -140,7 +141,7 @@ export default class ConditionDetail extends React.Component {
             ref='clinicalStatus'
             name='clinicalStatus'
             floatingLabelText='Clinical Status'
-            value={this.data.condition.clinicalStatus ? this.data.condition.clinicalStatus : ''}
+            value={ get(this, 'data.condition.clinicalStatus') }
             onChange={ this.changeState.bind(this, 'clinicalStatus')}
             fullWidth
             /><br/>
@@ -149,7 +150,7 @@ export default class ConditionDetail extends React.Component {
             ref='snomedCode'
             name='snomedCode'
             floatingLabelText='SNOMED Code'
-            value={this.data.condition.code.coding[0] ? this.data.condition.code.coding[0].code : ''}
+            value={ get(this, 'data.condition.code.coding[0].code') }
             onChange={ this.changeState.bind(this, 'snomedCode')}
             fullWidth
             /><br/>
@@ -158,7 +159,7 @@ export default class ConditionDetail extends React.Component {
             ref='snomedDisplay'
             name='snomedDisplay'
             floatingLabelText='SNOMED Display'
-            value={this.data.condition.code.coding[0] ? this.data.condition.code.coding[0].display : ''}
+            value={ get(this, 'data.condition.code.coding[0].display') }
             onChange={ this.changeState.bind(this, 'snomedDisplay')}
             fullWidth
             /><br/>
@@ -167,7 +168,7 @@ export default class ConditionDetail extends React.Component {
             ref='evidenceDisplay'
             name='evidenceDisplay'
             floatingLabelText='Evidence (Observation)'
-            value={this.data.condition.evidence[0].detail[0] ? this.data.condition.evidence[0].detail[0].display : ''}
+            value={ get(this, 'data.condition.evidence[0].detail[0].display') }
             onChange={ this.changeState.bind(this, 'evidenceDisplay')}
             fullWidth
             /><br/>

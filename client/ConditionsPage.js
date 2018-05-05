@@ -57,7 +57,14 @@ export class ConditionsPage extends React.Component {
                  <ConditionDetail id='newCondition' />
                </Tab>
                <Tab className="conditionListTab" label='Conditions' onActive={this.handleActive} style={this.data.style.tab} value={1}>
-                <ConditionsTable />
+                <ConditionsTable 
+                  displayPatientName={true}
+                  displayAsserterName={true}
+                  displayToggle={true}
+                  displayEvidence={false}
+                  displayDates={true}
+                  displayIdentifier={false}
+                />
                </Tab>
                <Tab className="conditionDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
                  <ConditionDetail 
