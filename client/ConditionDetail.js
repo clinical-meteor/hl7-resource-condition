@@ -108,7 +108,8 @@ export default class ConditionDetail extends React.Component {
           hintText="Onset Date" 
           container="inline" 
           mode="landscape"
-          value={ datePickerValue ? moment(datePickerValue).format('YYYY-MM-DD') : ''}    
+          // value={ datePickerValue ? moment(datePickerValue).format('YYYY-MM-DD') : ''}    
+          value={ datePickerValue ? datePickerValue : null }    
           onChange={ this.changeState.bind(this, 'onsetDateTime')}      
           />
       );

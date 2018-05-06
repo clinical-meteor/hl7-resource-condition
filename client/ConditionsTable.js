@@ -6,7 +6,7 @@ import ReactMixin from 'react-mixin';
 import { Table } from 'react-bootstrap';
 import { get, has } from 'lodash';
 
-export default class ConditionsTable extends React.Component {
+export class ConditionsTable extends React.Component {
 
   getMeteorData() {
 
@@ -233,3 +233,4 @@ export default class ConditionsTable extends React.Component {
 
 
 ReactMixin(ConditionsTable.prototype, ReactMeteorData);
+export default ConditionsTable;
