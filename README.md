@@ -1,8 +1,21 @@
 ##clinical:hl7-resource-condition
 
-HL7 FHIR Resource - Condition
+#### Licensing  
 
-===============================
+![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+
+
+#### Integration & Verification Tests  
+
+[![CircleCI](https://circleci.com/gh/clinical-meteor/hl7-resource-condition/tree/master.svg?style=svg)](https://circleci.com/gh/clinical-meteor/hl7-resource-condition/tree/master)
+
+
+#### API Reference  
+
+This package implements the FHIR Condition resource schema provided at [https://www.hl7.org/fhir/condition.html](https://www.hl7.org/fhir/condition.html).
+
+
+
 #### Installation  
 
 ````bash
@@ -13,17 +26,17 @@ meteor add clinical:hl7-resource-condition
 INITIALIZE=true meteor
 ````
 
-===============================
+
 #### Utilities  
 
 If you're working with HL7 FHIR Resources, we recommend using [Postman](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en).
 
-===============================
-#### Conformance Statement  
 
-The resource in this package implements the FHIR Patient Resource schema provided at  [https://www.hl7.org/fhir/condition.html](https://www.hl7.org/fhir/condition.html).  
-
-===============================
 #### Licensing  
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+
+
+#### Acknowledgements     
+
+Many thanks to VisExcell, DxRx Medical, and Parkland Center for Care Innovation for sponsoring this package.  Their generous support helped make this possible.  
