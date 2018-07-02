@@ -1,4 +1,4 @@
-##clinical:hl7-resource-condition
+## clinical:hl7-resource-condition
 
 #### Licensing  
 
