@@ -12,7 +12,7 @@
 
 #### API Reference  
 
-This package implements the FHIR Condition resource schema provided at [https://www.hl7.org/fhir/condition.html](https://www.hl7.org/fhir/condition.html).
+This package implements the FHIR Condition resource schema provided at [https://www.hl7.org/fhir/DSTU2/condition.html](https://www.hl7.org/fhir/DSTU2/condition.html).
 
 
 
