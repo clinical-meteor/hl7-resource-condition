@@ -10,6 +10,7 @@ import TextField from 'material-ui/TextField';
 import { browserHistory } from 'react-router';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
+import { Col, Grid, Row } from 'react-bootstrap';
 import { moment } from 'meteor/momentjs:moment'
 
 let defaultCondition = {
@@ -119,66 +120,88 @@ export default class ConditionDetail extends React.Component {
     return (
       <div id={this.props.id} className="conditionDetail">
         <CardText>
-          <TextField
-            id='patientDisplayInput'
-            ref='patientDisplay'
-            name='patientDisplay'
-            floatingLabelText='Patient'
-            value={ get(this, 'data.condition.patient.display') }
-            onChange={ this.changeState.bind(this, 'patientDisplay')}
-            fullWidth
-            /><br/>
-          <TextField
-            id='asserterDisplayInput'
-            ref='asserterDisplay'
-            name='asserterDisplay'
-            floatingLabelText='Asserter'
-            value={ get(this, 'data.condition.asserter.display') }
-            onChange={ this.changeState.bind(this, 'asserterDisplay')}
-            fullWidth
-            /><br/>
-          <TextField
-            id='clinicalStatusInput'
-            ref='clinicalStatus'
-            name='clinicalStatus'
-            floatingLabelText='Clinical Status'
-            value={ get(this, 'data.condition.clinicalStatus') }
-            onChange={ this.changeState.bind(this, 'clinicalStatus')}
-            fullWidth
-            /><br/>
-          <TextField
-            id='snomedCodeInput'
-            ref='snomedCode'
-            name='snomedCode'
-            floatingLabelText='SNOMED Code'
-            value={ get(this, 'data.condition.code.coding[0].code') }
-            onChange={ this.changeState.bind(this, 'snomedCode')}
-            fullWidth
-            /><br/>
-          <TextField
-            id='snomedDisplayInput'
-            ref='snomedDisplay'
-            name='snomedDisplay'
-            floatingLabelText='SNOMED Display'
-            value={ get(this, 'data.condition.code.coding[0].display') }
-            onChange={ this.changeState.bind(this, 'snomedDisplay')}
-            fullWidth
-            /><br/>
-          <TextField
-            id='evidenceDisplayInput'
-            ref='evidenceDisplay'
-            name='evidenceDisplay'
-            floatingLabelText='Evidence (Observation)'
-            value={ get(this, 'data.condition.evidence[0].detail[0].display') }
-            onChange={ this.changeState.bind(this, 'evidenceDisplay')}
-            fullWidth
-            /><br/>
+          <Row>
+            <Col md={6} >
+              <TextField
+                id='patientDisplayInput'
+                ref='patientDisplay'
+                name='patientDisplay'
+                floatingLabelText='Patient'
+                value={ get(this, 'data.condition.patient.display') }
+                onChange={ this.changeState.bind(this, 'patientDisplay')}
+                fullWidth
+                /><br/>
+            </Col>
+            <Col md={6} >
+              <TextField
+                id='asserterDisplayInput'
+                ref='asserterDisplay'
+                name='asserterDisplay'
+                floatingLabelText='Asserter'
+                value={ get(this, 'data.condition.asserter.display') }
+                onChange={ this.changeState.bind(this, 'asserterDisplay')}
+                fullWidth
+                /><br/>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6} >
+              <TextField
+                id='snomedCodeInput'
+                ref='snomedCode'
+                name='snomedCode'
+                floatingLabelText='SNOMED Code'
+                value={ get(this, 'data.condition.code.coding[0].code') }
+                hintText='307343001'
+                onChange={ this.changeState.bind(this, 'snomedCode')}
+                fullWidth
+                /><br/>
+            </Col>
+            <Col md={6} >
+              <TextField
+                id='snomedDisplayInput'
+                ref='snomedDisplay'
+                name='snomedDisplay'
+                floatingLabelText='SNOMED Display'
+                value={ get(this, 'data.condition.code.coding[0].display') }
+                onChange={ this.changeState.bind(this, 'snomedDisplay')}
+                hintText='Acquired hemoglobin H disease (disorder)'
+                fullWidth
+                /><br/>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6} >
+              <TextField
+                id='clinicalStatusInput'
+                ref='clinicalStatus'
+                name='clinicalStatus'
+                floatingLabelText='Clinical Status'
+                value={ get(this, 'data.condition.clinicalStatus') }
+                hintText='active | recurrence | inactive | remission | resolved'
+                onChange={ this.changeState.bind(this, 'clinicalStatus')}
+                fullWidth
+                /><br/>
+            </Col>
+            <Col md={6} >
+              <TextField
+                id='evidenceDisplayInput'
+                ref='evidenceDisplay'
+                name='evidenceDisplay'
+                floatingLabelText='Evidence (Observation)'
+                value={ get(this, 'data.condition.evidence[0].detail[0].display') }
+                onChange={ this.changeState.bind(this, 'evidenceDisplay')}
+                fullWidth
+                /><br/>
+            </Col>
+          </Row>
 
-            <br/>
+
+          <br/>
           { this.renderDatePicker(this.data.showDatePicker, get(this, 'data.condition.onsetDateTime') ) }
           <br/>
 
-
+          <a href='http://browser.ihtsdotools.org/?perspective=full&conceptId1=404684003&edition=us-edition&release=v20180301&server=https://prod-browser-exten.ihtsdotools.org/api/snomed&langRefset=900000000000509007'>Lookup codes with the SNOMED CT Browser</a>
 
         </CardText>
         <CardActions>
@@ -376,7 +399,7 @@ export default class ConditionDetail extends React.Component {
   }
 
   handleDeleteButton(){
-    Condition.remove({_id: Session.get('selectedCondition')}, function(error, result){
+    Conditions.remove({_id: Session.get('selectedCondition')}, function(error, result){
       if (error) {
         Bert.alert(error.reason, 'danger');
       }
