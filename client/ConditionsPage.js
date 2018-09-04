@@ -12,6 +12,8 @@ import React  from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin  from 'react-mixin';
 
+Session.setDefault('fhirVersion', 'v1.0.2');
+Session.setDefault('selectedCondition', false);
 
 export class ConditionsPage extends React.Component {
   getMeteorData() {
@@ -25,8 +27,16 @@ export class ConditionsPage extends React.Component {
       },
       tabIndex: Session.get('conditionPageTabIndex'),
       conditionSearchFilter: Session.get('conditionSearchFilter'),
-      currentCondition: Session.get('selectedCondition')
+      currentConditionId: Session.get('selectedCondition'),
+      fhirVersion: Session.get('fhirVersion'),
+      selectedCondition: false
     };
+
+    if (Session.get('selectedCondition')){
+      data.selectedCondition = Conditions.findOne({_id: Session.get('selectedCondition')});
+    } else {
+      data.selectedCondition = false;
+    }
 
     data.style = Glass.blur(data.style);
     data.style.appbar = Glass.darkroom(data.style.appbar);
@@ -54,7 +64,11 @@ export class ConditionsPage extends React.Component {
             <CardText>
               <Tabs id="conditionsPageTabs" default value={this.data.tabIndex} onChange={this.handleTabChange} initialSelectedIndex={1}>
                <Tab className='newConditionTab' label='New' style={this.data.style.tab} onActive={ this.onNewTab } value={0}>
-                 <ConditionDetail id='newCondition' />
+                 <ConditionDetail 
+                    id='newCondition'
+                    fhirVersion={ this.data.fhirVersion }
+                    condition={ this.data.selectedCondition }
+                    conditionId={ this.data.currentConditionId } />  
                </Tab>
                <Tab className="conditionListTab" label='Conditions' onActive={this.handleActive} style={this.data.style.tab} value={1}>
                 <ConditionsTable 
@@ -69,6 +83,9 @@ export class ConditionsPage extends React.Component {
                <Tab className="conditionDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
                  <ConditionDetail 
                  id='conditionDetails' 
+                 fhirVersion={ this.data.fhirVersion }
+                 condition={ this.data.selectedCondition }
+                 conditionId={ this.data.currentConditionId } 
                  showDatePicker={true} 
                  />
                </Tab>
