@@ -475,3 +475,4 @@ ConditionDetail.propTypes = {
   showDatePicker: PropTypes.bool
 };
 ReactMixin(ConditionDetail.prototype, ReactMeteorData);
+export default ConditionDetail;
