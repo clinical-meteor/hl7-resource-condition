@@ -23,7 +23,7 @@ import { moment } from 'meteor/momentjs:moment'
 
 Session.setDefault('conditionUpsert', false);
 
-export default class ConditionDetail extends React.Component {
+export class ConditionDetail extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
