@@ -64,7 +64,7 @@ export class ConditionDetail extends React.Component {
       }
     }
   }
-  deydrateFhirResource(condition) {
+  dehydrateFhirResource(condition) {
     let formData = Object.assign({}, this.state.form);
 
     formData.patientDisplay = get(condition, 'patient.display')
@@ -91,7 +91,7 @@ export class ConditionDetail extends React.Component {
       
       if(nextProps.condition){
         this.setState({condition: nextProps.condition})     
-        this.setState({form: this.deydrateFhirResource(nextProps.condition)})       
+        this.setState({form: this.dehydrateFhirResource(nextProps.condition)})       
       }
       shouldUpdate = true;
     }
