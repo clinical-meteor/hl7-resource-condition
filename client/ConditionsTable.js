@@ -203,7 +203,7 @@ export class ConditionsTable extends React.Component {
         </tr>
       )
     }
-
+hgy
     return(
       <Table id='conditionsTable' hover >
         <thead>

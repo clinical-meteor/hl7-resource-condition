@@ -78,6 +78,7 @@ export class ConditionsPage extends React.Component {
                   displayEvidence={false}
                   displayDates={true}
                   displayIdentifier={false}
+                  noDataMessagePadding={100}
                 />
                </Tab>
                <Tab className="conditionDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>

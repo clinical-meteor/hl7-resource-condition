@@ -408,7 +408,7 @@ export class ConditionDetail extends React.Component {
 
       Conditions.update(
         {_id: Session.get('selectedCondition')}, {$set: fhirConditionData }, {
-          validate: false, 
+          validate: true, 
           filter: false, 
           removeEmptyStrings: false
         }, function(error, result) {
@@ -429,7 +429,7 @@ export class ConditionDetail extends React.Component {
       if(process.env.NODE_ENV === "test") console.log("Create a new Condition", fhirConditionData);
 
       Conditions.insert(fhirConditionData, {
-        validate: false, 
+        validate: true, 
         filter: false, 
         removeEmptyStrings: false
       }, function(error, result) {

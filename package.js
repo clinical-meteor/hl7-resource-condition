@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-condition',
-  version: '1.7.3',
+  version: '1.7.4',
   summary: 'HL7 FHIR Resource - Condition',
   git: 'https://github.com/clinical-meteor/hl7-resource-condition',
   documentation: 'README.md'
@@ -26,7 +26,7 @@ Package.onUse(function (api) {
   api.use('clinical:glass-ui@2.1.4');
   api.use('clinical:extended-api@2.2.2');
   api.use('clinical:base-model@1.4.0');
-  api.use('clinical:user-model@1.5.0');
+  api.use('clinical:user-model@1.6.2');
   api.use('matb33:collection-hooks@0.7.15');
   api.use('clinical:alert@2.1.3');
   
