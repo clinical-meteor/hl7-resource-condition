@@ -21,7 +21,6 @@ import PropTypes from 'prop-types';
 import { Col, Grid, Row } from 'react-bootstrap';
 import { moment } from 'meteor/momentjs:moment'
 
-Session.setDefault('conditionUpsert', false);
 
 export class ConditionDetail extends React.Component {
   constructor(props) {
@@ -113,23 +112,6 @@ export class ConditionDetail extends React.Component {
     if(this.props.condition){
       data.condition = this.props.condition;
     }
-    
-    // if (Session.get('conditionUpsert')) {
-    //   data.condition = Session.get('conditionUpsert');
-    // } else {
-    //     console.log("selectedCondition", Session.get('selectedCondition'));
-
-    //     let selectedCondition = Conditions.findOne({_id: Session.get('selectedCondition')});
-    //     console.log("selectedCondition", selectedCondition);
-
-    //     if (selectedCondition) {
-    //       data.condition = selectedCondition;
-    //     }
-    // }
-
-    // if (Session.get('selectedCondition')) {
-    //   data.conditionId = Session.get('selectedCondition');
-    // }  
 
     return data;
   }
@@ -403,15 +385,8 @@ export class ConditionDetail extends React.Component {
       if(process.env.NODE_ENV === "test") console.log("Updating Condition...");
       delete fhirConditionData._id;
 
-      // // not sure why we're having to respecify this; fix for a bug elsewhere
-      // fhirConditionData.resourceType = 'Condition';
-
-      Conditions.update(
-        {_id: Session.get('selectedCondition')}, {$set: fhirConditionData }, {
-          validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
-          filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
-          removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
-        }, function(error, result) {
+      Conditions._collection.update(
+        {_id: Session.get('selectedCondition')}, {$set: fhirConditionData }, function(error, result) {
           if (error) {
             console.log("error", error);
             Bert.alert(error.reason, 'danger');
@@ -420,7 +395,6 @@ export class ConditionDetail extends React.Component {
             HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: Session.get('selectedCondition')});
             Session.set('conditionPageTabIndex', 1);
             Session.set('selectedCondition', false);
-            Session.set('conditionUpsert', false);
             Bert.alert('Condition updated!', 'success');
           }
         });
@@ -428,11 +402,7 @@ export class ConditionDetail extends React.Component {
 
       if(process.env.NODE_ENV === "test") console.log("Create a new Condition", fhirConditionData);
 
-      Conditions.insert(fhirConditionData, {
-        validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
-        filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
-        removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
-      }, function(error, result) {
+      Conditions._collection.insert(fhirConditionData, function(error, result) {
         if (error) {
           console.log("error", error);
           Bert.alert(error.reason, 'danger');
@@ -441,7 +411,6 @@ export class ConditionDetail extends React.Component {
           HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: result});
           Session.set('conditionPageTabIndex', 1);
           Session.set('selectedCondition', false);
-          Session.set('conditionUpsert', false);
           Bert.alert('Condition added!', 'success');
         }
       });
