@@ -395,7 +395,7 @@ export class ConditionDetail extends React.Component {
             Bert.alert(error.reason, 'danger');
           }
           if (result) {
-            HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: this.data.conditionId});
+            HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.state.conditionId});
             Session.set('conditionPageTabIndex', 1);
             Session.set('selectedCondition', false);
             Bert.alert('Condition updated!', 'success');
@@ -411,7 +411,7 @@ export class ConditionDetail extends React.Component {
           Bert.alert(error.reason, 'danger');
         }
         if (result) {
-          HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.data.conditionId});
+          HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.state.conditionId});
           Session.set('conditionPageTabIndex', 1);
           Session.set('selectedCondition', false);
           Bert.alert('Condition added!', 'success');
@@ -431,7 +431,7 @@ export class ConditionDetail extends React.Component {
         Bert.alert(error.reason, 'danger');
       }
       if (result) {
-        HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.data.conditionId});
+        HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.state.conditionId});
         Session.set('conditionPageTabIndex', 1);
         Session.set('selectedCondition', false);
         Session.set('conditionUpsert', false);
