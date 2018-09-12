@@ -147,6 +147,7 @@ export class ConditionDetail extends React.Component {
                 floatingLabelText='Patient'
                 value={ get(formData, 'patientDisplay', '') }
                 onChange={ this.changeState.bind(this, 'patientDisplay')}
+                hintText='Jane Doe'
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -158,6 +159,7 @@ export class ConditionDetail extends React.Component {
                 floatingLabelText='Asserter'
                 value={ get(formData, 'asserterDisplay', '') }
                 onChange={ this.changeState.bind(this, 'asserterDisplay')}
+                hintText='Nurse Jackie'
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -236,7 +238,7 @@ export class ConditionDetail extends React.Component {
 
         </CardText>
         <CardActions>
-          { this.determineButtons(this.data.conditionId) }
+          { this.determineButtons(this.state.conditionId) }
         </CardActions>
       </div>
     );
@@ -370,6 +372,7 @@ export class ConditionDetail extends React.Component {
     if(process.env.NODE_ENV === "test") console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^&&')
     console.log('Saving a new Condition...', this.state)
 
+    let self = this;
     let fhirConditionData = Object.assign({}, this.state.condition);
 
     if(process.env.NODE_ENV === "test") console.log('fhirConditionData', fhirConditionData);
@@ -381,18 +384,18 @@ export class ConditionDetail extends React.Component {
     console.log('IsValid: ', conditionValidator.isValid())
     console.log('ValidationErrors: ', conditionValidator.validationErrors());
 
-    if (this.data.conditionId) {
+    if (this.state.conditionId) {
       if(process.env.NODE_ENV === "test") console.log("Updating Condition...");
       delete fhirConditionData._id;
 
       Conditions._collection.update(
-        {_id: Session.get('selectedCondition')}, {$set: fhirConditionData }, function(error, result) {
+        {_id: this.data.conditionId}, {$set: fhirConditionData }, function(error, result) {
           if (error) {
             console.log("error", error);
             Bert.alert(error.reason, 'danger');
           }
           if (result) {
-            HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: Session.get('selectedCondition')});
+            HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: this.data.conditionId});
             Session.set('conditionPageTabIndex', 1);
             Session.set('selectedCondition', false);
             Bert.alert('Condition updated!', 'success');
@@ -408,7 +411,7 @@ export class ConditionDetail extends React.Component {
           Bert.alert(error.reason, 'danger');
         }
         if (result) {
-          HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: result});
+          HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.data.conditionId});
           Session.set('conditionPageTabIndex', 1);
           Session.set('selectedCondition', false);
           Bert.alert('Condition added!', 'success');
@@ -422,12 +425,13 @@ export class ConditionDetail extends React.Component {
   }
 
   handleDeleteButton(){
-    Conditions.remove({_id: Session.get('selectedCondition')}, function(error, result){
+    let self = this;
+    Conditions.remove({_id: this.data.conditionId}, function(error, result){
       if (error) {
         Bert.alert(error.reason, 'danger');
       }
       if (result) {
-        HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: Session.get('selectedCondition')});
+        HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.data.conditionId});
         Session.set('conditionPageTabIndex', 1);
         Session.set('selectedCondition', false);
         Session.set('conditionUpsert', false);
