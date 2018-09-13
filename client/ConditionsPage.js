@@ -1,5 +1,4 @@
-import { CardText, CardTitle } from 'material-ui/Card';
-import {Tab, Tabs} from 'material-ui/Tabs';
+import { CardText, CardTitle, Tab, Tabs } from 'material-ui';
 import { GlassCard, VerticalCanvas, Glass } from 'meteor/clinical:glass-ui';
 
 import ConditionDetail from './ConditionDetail';
@@ -62,7 +61,7 @@ export class ConditionsPage extends React.Component {
             <CardTitle title='Conditions' />
             <CardText>
               <Tabs id="conditionsPageTabs" default value={this.data.tabIndex} onChange={this.handleTabChange} initialSelectedIndex={1}>
-               <Tab className='newConditionTab' label='New' style={this.data.style.tab} onActive={ this.onNewTab } value={0}>
+               <Tab id='newConditionTab' className='newConditionTab' label='New' style={this.data.style.tab} onActive={ this.onNewTab } value={0}>
                  <ConditionDetail 
                     id='newCondition'
                     fhirVersion={ this.data.fhirVersion }
@@ -80,9 +79,9 @@ export class ConditionsPage extends React.Component {
                   noDataMessagePadding={100}
                 />
                </Tab>
-               <Tab className="conditionDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
+               <Tab id="conditionDetailsTab" className="conditionDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
                  <ConditionDetail 
-                 id='conditionDetails' 
+                  id='conditionDetails' 
                   fhirVersion={ this.data.fhirVersion }
                   condition={ this.data.selectedCondition }
                   conditionId={ this.data.currentConditionId } 
