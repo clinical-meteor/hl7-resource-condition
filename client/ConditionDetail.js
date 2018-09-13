@@ -6,16 +6,12 @@
 //
 // =======================================================================
 
-import { CardActions, CardText } from 'material-ui/Card';
+import { CardActions, CardText, DatePicker, RaisedButton, TextField } from 'material-ui';
 
-// import { Bert } from 'meteor/clinical:alert';
-import DatePicker from 'material-ui/DatePicker';
-import RaisedButton from 'material-ui/RaisedButton';
+
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin from 'react-mixin';
-import TextField from 'material-ui/TextField';
-import { browserHistory } from 'react-router';
 import { get, set } from 'lodash';
 import PropTypes from 'prop-types';
 import { Col, Grid, Row } from 'react-bootstrap';
@@ -85,7 +81,7 @@ export class ConditionDetail extends React.Component {
     }
 
     // received an condition from the table; okay lets update again
-    if(nextProps.conditionId !== this.state.conditionId){
+    if(nextProps.conditionId !== this.data.conditionId){
       this.setState({conditionId: nextProps.conditionId})
       
       if(nextProps.condition){
@@ -238,7 +234,7 @@ export class ConditionDetail extends React.Component {
 
         </CardText>
         <CardActions>
-          { this.determineButtons(this.state.conditionId) }
+          { this.determineButtons(this.data.conditionId) }
         </CardActions>
       </div>
     );
@@ -384,7 +380,7 @@ export class ConditionDetail extends React.Component {
     console.log('IsValid: ', conditionValidator.isValid())
     console.log('ValidationErrors: ', conditionValidator.validationErrors());
 
-    if (this.state.conditionId) {
+    if (this.data.conditionId) {
       if(process.env.NODE_ENV === "test") console.log("Updating Condition...");
       delete fhirConditionData._id;
 
@@ -397,7 +393,7 @@ export class ConditionDetail extends React.Component {
           if (result) {
             HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.state.conditionId});
             Session.set('conditionPageTabIndex', 1);
-            Session.set('selectedCondition', false);
+            Session.set('selectedConditionId', false);
             Bert.alert('Condition updated!', 'success');
           }
         });
@@ -413,7 +409,7 @@ export class ConditionDetail extends React.Component {
         if (result) {
           HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.state.conditionId});
           Session.set('conditionPageTabIndex', 1);
-          Session.set('selectedCondition', false);
+          Session.set('selectedConditionId', false);
           Bert.alert('Condition added!', 'success');
         }
       });
@@ -433,8 +429,7 @@ export class ConditionDetail extends React.Component {
       if (result) {
         HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.state.conditionId});
         Session.set('conditionPageTabIndex', 1);
-        Session.set('selectedCondition', false);
-        Session.set('conditionUpsert', false);
+        Session.set('selectedConditionId', false);
         Bert.alert('Condition removed!', 'success');
       }
     });

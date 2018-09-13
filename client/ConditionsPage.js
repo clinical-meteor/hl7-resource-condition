@@ -27,13 +27,13 @@ export class ConditionsPage extends React.Component {
       },
       tabIndex: Session.get('conditionPageTabIndex'),
       conditionSearchFilter: Session.get('conditionSearchFilter'),
-      currentConditionId: Session.get('selectedCondition'),
+      currentConditionId: Session.get('selectedConditionId'),
       fhirVersion: Session.get('fhirVersion'),
       selectedCondition: false
     };
 
-    if (Session.get('selectedCondition')){
-      data.selectedCondition = Conditions.findOne({_id: Session.get('selectedCondition')});
+    if (Session.get('selectedConditionId')){
+      data.selectedCondition = Conditions.findOne({_id: Session.get('selectedConditionId')});
     } else {
       data.selectedCondition = false;
     }
@@ -50,8 +50,7 @@ export class ConditionsPage extends React.Component {
   }
 
   onNewTab(){
-    Session.set('selectedCondition', false);
-    Session.set('conditionUpsert', false);
+    Session.set('selectedConditionId', false);
   }
 
   render() {

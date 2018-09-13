@@ -10,8 +10,6 @@ export class ConditionsTable extends React.Component {
 
   getMeteorData() {
 
-    // this should all be handled by props
-    // or a mixin!
     let data = {
       style: {
         opacity: Session.get('globalOpacity')
@@ -154,8 +152,7 @@ export class ConditionsTable extends React.Component {
   } 
 
   rowClick(id){
-    Session.set('conditionsUpsert', false);
-    Session.set('selectedCondition', id);
+    Session.set('selectedConditionId', id);
     Session.set('conditionPageTabIndex', 2);
   };
   render () {
