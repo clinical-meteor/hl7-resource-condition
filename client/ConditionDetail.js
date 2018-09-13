@@ -43,7 +43,7 @@ export class ConditionDetail extends React.Component {
             }
           ]
         },
-        clinicalStatus: "",
+        clinicalStatus: "active",
         verificationStatus: "confirmed",
         evidence: [],
         onsetDateTime: null
@@ -81,7 +81,7 @@ export class ConditionDetail extends React.Component {
     }
 
     // received an condition from the table; okay lets update again
-    if(nextProps.conditionId !== this.data.conditionId){
+    if(nextProps.conditionId !== this.state.conditionId){
       this.setState({conditionId: nextProps.conditionId})
       
       if(nextProps.condition){
@@ -212,17 +212,6 @@ export class ConditionDetail extends React.Component {
                 fullWidth
                 /><br/>
             </Col>
-            {/* <Col md={6} >
-              <TextField
-                id='evidenceDisplayInput'
-                name='evidenceDisplay'
-                floatingLabelText='Evidence (Observation)'
-                value={ get(formData, 'evidence[0].detail[0].display') }
-                onChange={ this.changeState.bind(this, 'evidenceDisplay')}
-                floatingLabelFixed={true}
-                fullWidth
-                /><br/>
-            </Col> */}
           </Row>
 
 
@@ -234,7 +223,7 @@ export class ConditionDetail extends React.Component {
 
         </CardText>
         <CardActions>
-          { this.determineButtons(this.data.conditionId) }
+          { this.determineButtons(this.state.conditionId) }
         </CardActions>
       </div>
     );
@@ -319,24 +308,6 @@ export class ConditionDetail extends React.Component {
       case "datePicker":
         set(conditionData, 'onsetDateTime', textValue)
         break;
-
-      // case "verificationStatus":
-      //   switch (textValue) {
-      //     case 0:
-      //       set(conditionData, 'verificationStatus', 'unconfirmed')
-      //       break;
-      //     case 1:
-      //       set(conditionData, 'verificationStatus', 'confirmed')
-      //       break;
-      //     case 2:
-      //       set(conditionData, 'verificationStatus', 'refuted')
-      //       break;
-      //     case 3:
-      //       set(conditionData, 'verificationStatus', 'entered-in-error')
-      //       break;
-      //   }       
-      //   break;
-      
     }
     return conditionData;
   }
@@ -380,12 +351,12 @@ export class ConditionDetail extends React.Component {
     console.log('IsValid: ', conditionValidator.isValid())
     console.log('ValidationErrors: ', conditionValidator.validationErrors());
 
-    if (this.data.conditionId) {
+    if (this.state.conditionId) {
       if(process.env.NODE_ENV === "test") console.log("Updating Condition...");
       delete fhirConditionData._id;
 
       Conditions._collection.update(
-        {_id: this.data.conditionId}, {$set: fhirConditionData }, function(error, result) {
+        {_id: this.state.conditionId}, {$set: fhirConditionData }, function(error, result) {
           if (error) {
             console.log("error", error);
             Bert.alert(error.reason, 'danger');
@@ -421,8 +392,10 @@ export class ConditionDetail extends React.Component {
   }
 
   handleDeleteButton(){
+    console.log('ConditionDetail.handleDeleteButton()', this.state.conditionId)
+
     let self = this;
-    Conditions.remove({_id: this.data.conditionId}, function(error, result){
+    Conditions._collection.remove({_id: this.state.conditionId}, function(error, result){
       if (error) {
         Bert.alert(error.reason, 'danger');
       }
