@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-condition',
-  version: '1.7.13',
+  version: '1.7.15',
   summary: 'HL7 FHIR Resource - Condition',
   git: 'https://github.com/clinical-meteor/hl7-resource-condition',
   documentation: 'README.md'
@@ -13,8 +13,8 @@ Package.onUse(function (api) {
   api.use('mongo');
 
   api.use('aldeed:collection2@3.0.0');
-  api.use('clinical:hl7-resource-datatypes@4.0.0');
-  api.use('clinical:hl7-resource-bundle@1.4.0');
+  api.use('clinical:hl7-resource-datatypes@4.0.3');
+  api.use('clinical:hl7-resource-bundle@1.4.1');
 
   api.use('simple:json-routes@2.1.0');
   api.use('momentjs:moment@2.17.1');

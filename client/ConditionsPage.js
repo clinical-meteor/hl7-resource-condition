@@ -13,7 +13,7 @@ import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin  from 'react-mixin';
 
 Session.setDefault('fhirVersion', 'v1.0.2');
-Session.setDefault('selectedCondition', false);
+Session.setDefault('selectedConditionId', false);
 
 export class ConditionsPage extends React.Component {
   getMeteorData() {
@@ -83,10 +83,10 @@ export class ConditionsPage extends React.Component {
                <Tab className="conditionDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
                  <ConditionDetail 
                  id='conditionDetails' 
-                 fhirVersion={ this.data.fhirVersion }
-                 condition={ this.data.selectedCondition }
-                 conditionId={ this.data.currentConditionId } 
-                 showDatePicker={true} 
+                  fhirVersion={ this.data.fhirVersion }
+                  condition={ this.data.selectedCondition }
+                  conditionId={ this.data.currentConditionId } 
+                  showDatePicker={true} 
                  />
                </Tab>
              </Tabs>
