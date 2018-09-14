@@ -11,8 +11,12 @@ import React  from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin  from 'react-mixin';
 
+import { get } from 'lodash';
+
+
 Session.setDefault('fhirVersion', 'v1.0.2');
 Session.setDefault('selectedConditionId', false);
+Session.setDefault('conditionPageTabIndex', 1);
 
 export class ConditionsPage extends React.Component {
   getMeteorData() {
@@ -53,7 +57,7 @@ export class ConditionsPage extends React.Component {
   }
 
   render() {
-    if(process.env.NODE_ENV === "test") console.log('In ConditionsPage render');
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log('In ConditionsPage render');
     return (
       <div id='conditionsPage'>
         <VerticalCanvas>
@@ -68,7 +72,7 @@ export class ConditionsPage extends React.Component {
                     condition={ this.data.selectedCondition }
                     conditionId={ this.data.currentConditionId } />  
                </Tab>
-               <Tab className="conditionListTab" label='Conditions' onActive={this.handleActive} style={this.data.style.tab} value={1}>
+               <Tab id='conditionListTab' className="conditionListTab" label='Conditions' onActive={this.handleActive} style={this.data.style.tab} value={1}>
                 <ConditionsTable 
                   displayPatientName={true}
                   displayAsserterName={true}

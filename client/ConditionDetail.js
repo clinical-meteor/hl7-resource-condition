@@ -72,7 +72,7 @@ export class ConditionDetail extends React.Component {
     return formData;
   }
   shouldComponentUpdate(nextProps){
-    process.env.NODE_ENV === "test" && console.log('ConditionDetail.shouldComponentUpdate()', nextProps, this.state)
+    get(Meteor, 'settings.public.logging') === "debug" && console.log('ConditionDetail.shouldComponentUpdate()', nextProps, this.state)
     let shouldUpdate = true;
 
     // both false; don't take any more updates
@@ -129,7 +129,7 @@ export class ConditionDetail extends React.Component {
     }
   }
   render() {
-    if(process.env.NODE_ENV === "test") console.log('ConditionDetail.render()', this.state)
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log('ConditionDetail.render()', this.state)
     let formData = this.state.form;
 
     return (
@@ -247,7 +247,7 @@ export class ConditionDetail extends React.Component {
 
 
   updateFormData(formData, field, textValue){
-    if(process.env.NODE_ENV === "test") console.log("ConditionDetail.updateFormData", formData, field, textValue);
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log("ConditionDetail.updateFormData", formData, field, textValue);
 
     switch (field) {
       case "patientDisplay":
@@ -277,11 +277,11 @@ export class ConditionDetail extends React.Component {
       default:
     }
 
-    if(process.env.NODE_ENV === "test") console.log("formData", formData);
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log("formData", formData);
     return formData;
   }
   updateCondition(conditionData, field, textValue){
-    if(process.env.NODE_ENV === "test") console.log("ConditionDetail.updateCondition", conditionData, field, textValue);
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log("ConditionDetail.updateCondition", conditionData, field, textValue);
 
     switch (field) {
       case "patientDisplay":
@@ -312,14 +312,14 @@ export class ConditionDetail extends React.Component {
     return conditionData;
   }
   componentDidUpdate(props){
-    if(process.env.NODE_ENV === "test") console.log('ConditionDisplay.componentDidUpdate()', props, this.state)
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log('ConditionDisplay.componentDidUpdate()', props, this.state)
   }
   // this could be a mixin
   changeState(field, event, textValue){
 
-    if(process.env.NODE_ENV === "test") console.log("   ");
-    if(process.env.NODE_ENV === "test") console.log("ConditionDetail.changeState", field, textValue);
-    if(process.env.NODE_ENV === "test") console.log("this.state", this.state);
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log("   ");
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log("ConditionDetail.changeState", field, textValue);
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log("this.state", this.state);
 
     let formData = Object.assign({}, this.state.form);
     let conditionData = Object.assign({}, this.state.condition);
@@ -327,8 +327,8 @@ export class ConditionDetail extends React.Component {
     formData = this.updateFormData(formData, field, textValue);
     conditionData = this.updateCondition(conditionData, field, textValue);
 
-    if(process.env.NODE_ENV === "test") console.log("conditionData", conditionData);
-    if(process.env.NODE_ENV === "test") console.log("formData", formData);
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log("conditionData", conditionData);
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log("formData", formData);
 
     this.setState({condition: conditionData})
     this.setState({form: formData})
@@ -336,13 +336,13 @@ export class ConditionDetail extends React.Component {
   }
 
   handleSaveButton(){
-    if(process.env.NODE_ENV === "test") console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^&&')
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^&&')
     console.log('Saving a new Condition...', this.state)
 
     let self = this;
     let fhirConditionData = Object.assign({}, this.state.condition);
 
-    if(process.env.NODE_ENV === "test") console.log('fhirConditionData', fhirConditionData);
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log('fhirConditionData', fhirConditionData);
 
 
     let conditionValidator = ConditionSchema.newContext();
@@ -352,7 +352,7 @@ export class ConditionDetail extends React.Component {
     console.log('ValidationErrors: ', conditionValidator.validationErrors());
 
     if (this.state.conditionId) {
-      if(process.env.NODE_ENV === "test") console.log("Updating Condition...");
+      if(get(Meteor, 'settings.public.logging') === "debug") console.log("Updating Condition...");
       delete fhirConditionData._id;
 
       Conditions._collection.update(
@@ -370,7 +370,7 @@ export class ConditionDetail extends React.Component {
         });
     } else {
 
-      if(process.env.NODE_ENV === "test") console.log("Create a new Condition", fhirConditionData);
+      if(get(Meteor, 'settings.public.logging') === "debug") console.log("Create a new Condition", fhirConditionData);
 
       Conditions._collection.insert(fhirConditionData, function(error, result) {
         if (error) {

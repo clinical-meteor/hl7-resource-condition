@@ -48,7 +48,7 @@ export class ConditionsTable extends React.Component {
       }  
     }
 
-    if(process.env.NODE_ENV === "test") console.log("ConditionsTable[data]", data);
+    if(get(Meteor, 'settings.public.logging') === "debug") console.log("ConditionsTable[data]", data);
     return data;
   };
 
