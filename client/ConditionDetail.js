@@ -215,9 +215,9 @@ export class ConditionDetail extends React.Component {
           </Row>
 
 
-          <br/>
+          {/* <br/>
           { this.renderDatePicker(this.data.showDatePicker, get(this, 'data.condition.onsetDateTime') ) }
-          <br/>
+          <br/> */}
 
           <a href='http://browser.ihtsdotools.org/?perspective=full&conceptId1=404684003&edition=us-edition&release=v20180301&server=https://prod-browser-exten.ihtsdotools.org/api/snomed&langRefset=900000000000509007'>Lookup codes with the SNOMED CT Browser</a>
 
