@@ -6,6 +6,8 @@ import ReactMixin from 'react-mixin';
 import { Table } from 'react-bootstrap';
 import { get, has } from 'lodash';
 
+import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
+
 export class ConditionsTable extends React.Component {
 
   getMeteorData() {
@@ -184,7 +186,12 @@ export class ConditionsTable extends React.Component {
 
       tableRows.push(
         <tr key={i} className="conditionRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
-          {/* <td className='identifier'>{ newRow.identifier }</td> */}
+          <td className='meta' style={{width: '100px'}} >
+            <FaLock style={{marginLeft: '2px', marginRight: '2px'}} />
+            <FaTags style={{marginLeft: '2px', marginRight: '2px'}} />
+            <FaCode style={{marginLeft: '2px', marginRight: '2px'}} />
+            <FaPuzzlePiece style={{marginLeft: '2px', marginRight: '2px'}} />
+          </td>
           { this.renderIdentifier(this.data.displayToggle, this.data.conditions[i]) }
           { this.renderToggles(this.data.displayToggle, this.data.conditions[i]) }
           { this.renderPatientName(this.data.displayPatientName, newRow.patientDisplay ) } 
@@ -205,7 +212,7 @@ export class ConditionsTable extends React.Component {
       <Table id='conditionsTable' hover >
         <thead>
           <tr>
-            {/* <th className='identifier'>identifier</th> */}
+            <th className='meta'>Meta</th>
             { this.renderIdentifierHeader(this.data.displayIdentifier) }
             { this.renderTogglesHeader(this.data.displayToggle) }
             { this.renderPatientNameHeader(this.data.displayPatientName) }
