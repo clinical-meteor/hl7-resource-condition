@@ -2,6 +2,7 @@
 
 import ConditionsPage from './client/ConditionsPage';
 import ConditionsTable from './client/ConditionsTable';
+import ConditionDetail from './client/ConditionDetail';
 import { Condition, Conditions, ConditionSchema } from './lib/Conditions';
 
 var DynamicRoutes = [{
@@ -22,7 +23,8 @@ export {
   DynamicRoutes, 
 
   ConditionsPage,
-  ConditionsTable
+  ConditionsTable,
+  ConditionDetail
 };
 
 
