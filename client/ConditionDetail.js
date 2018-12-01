@@ -17,7 +17,6 @@ import PropTypes from 'prop-types';
 import { Col, Grid, Row } from 'react-bootstrap';
 import { moment } from 'meteor/momentjs:moment'
 
-
 export class ConditionDetail extends React.Component {
   constructor(props) {
     super(props);
@@ -75,20 +74,21 @@ export class ConditionDetail extends React.Component {
     get(Meteor, 'settings.public.logging') === "debug" && console.log('ConditionDetail.shouldComponentUpdate()', nextProps, this.state)
     let shouldUpdate = true;
 
-    // both false; don't take any more updates
-    if(nextProps.condition === this.state.condition){
-      shouldUpdate = false;
-    }
-
     // received an condition from the table; okay lets update again
     if(nextProps.conditionId !== this.state.conditionId){
-      this.setState({conditionId: nextProps.conditionId})
       
       if(nextProps.condition){
         this.setState({condition: nextProps.condition})     
         this.setState({form: this.dehydrateFhirResource(nextProps.condition)})       
       }
+
+      this.setState({conditionId: nextProps.conditionId})
       shouldUpdate = true;
+    }
+
+    // both false; don't take any more updates
+    if(nextProps.condition === this.state.condition){
+      shouldUpdate = false;
     }
  
     return shouldUpdate;
@@ -107,6 +107,7 @@ export class ConditionDetail extends React.Component {
     }
     if(this.props.condition){
       data.condition = this.props.condition;
+      data.form = this.dehydrateFhirResource(this.props.condition);
     }
 
     return data;
@@ -128,9 +129,15 @@ export class ConditionDetail extends React.Component {
       );
     }
   }
+  setHint(text){
+    if(this.props.showHints !== false){
+      return text;
+    } else {
+      return '';
+    }
+  }
   render() {
     if(get(Meteor, 'settings.public.logging') === "debug") console.log('ConditionDetail.render()', this.state)
-    let formData = this.state.form;
 
     return (
       <div id={this.props.id} className="conditionDetail">
@@ -141,9 +148,9 @@ export class ConditionDetail extends React.Component {
                 id='patientDisplayInput'
                 name='patientDisplay'
                 floatingLabelText='Patient'
-                value={ get(formData, 'patientDisplay', '') }
+                value={ get(this, 'data.form.patientDisplay', '') }
                 onChange={ this.changeState.bind(this, 'patientDisplay')}
-                hintText='Jane Doe'
+                hintText={ this.setHint('Jane Doe') }
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -153,9 +160,9 @@ export class ConditionDetail extends React.Component {
                 id='asserterDisplayInput'
                 name='asserterDisplay'
                 floatingLabelText='Asserter'
-                value={ get(formData, 'asserterDisplay', '') }
+                value={ get(this, 'data.form.asserterDisplay', '') }
                 onChange={ this.changeState.bind(this, 'asserterDisplay')}
-                hintText='Nurse Jackie'
+                hintText={ this.setHint('Nurse Jackie') }
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -167,8 +174,8 @@ export class ConditionDetail extends React.Component {
                 id='snomedCodeInput'
                 name='snomedCode'
                 floatingLabelText='SNOMED Code'
-                value={ get(formData, 'snomedCode', '') }
-                hintText='307343001'
+                value={ get(this, 'data.form.snomedCode', '') }
+                hintText={ this.setHint('307343001') }
                 onChange={ this.changeState.bind(this, 'snomedCode')}
                 floatingLabelFixed={true}
                 fullWidth
@@ -179,9 +186,9 @@ export class ConditionDetail extends React.Component {
                 id='snomedDisplayInput'
                 name='snomedDisplay'
                 floatingLabelText='SNOMED Display'
-                value={ get(formData, 'snomedDisplay', '') }
+                value={ get(this, 'data.form.snomedDisplay', '') }
                 onChange={ this.changeState.bind(this, 'snomedDisplay')}
-                hintText='Acquired hemoglobin H disease (disorder)'
+                hintText={ this.setHint('Acquired hemoglobin H disease (disorder)') }
                 floatingLabelFixed={true}
                 fullWidth
                 /><br/>
@@ -193,8 +200,8 @@ export class ConditionDetail extends React.Component {
                 id='clinicalStatusInput'
                 name='clinicalStatus'
                 floatingLabelText='Clinical Status'
-                value={ get(formData, 'clinicalStatus', '') }
-                hintText='active | recurrence | inactive | remission | resolved'
+                value={ get(this, 'data.form.clinicalStatus', '') }
+                hintText={ this.setHint('active | recurrence | inactive | remission | resolved') }
                 onChange={ this.changeState.bind(this, 'clinicalStatus')}
                 floatingLabelFixed={true}
                 fullWidth
@@ -205,8 +212,8 @@ export class ConditionDetail extends React.Component {
                 id='verificationStatusInput'
                 name='verificationStatus'
                 floatingLabelText='Verification Status'
-                value={ get(formData, 'verificationStatus', '') }
-                hintText='provisional | differential | confirmed | refuted | entered-in-error | unknown'
+                value={ get(this, 'data.form.verificationStatus', '') }
+                hintText={ this.setHint('provisional | differential | confirmed | refuted | entered-in-error | unknown') }
                 onChange={ this.changeState.bind(this, 'verificationStatus')}
                 floatingLabelFixed={true}
                 fullWidth
@@ -362,9 +369,9 @@ export class ConditionDetail extends React.Component {
             Bert.alert(error.reason, 'danger');
           }
           if (result) {
-            HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.state.conditionId});
-            Session.set('conditionPageTabIndex', 1);
-            Session.set('selectedConditionId', false);
+            if(this.props.onUpdate){
+              this.props.onUpdate(self.data.conditionId);
+            }
             Bert.alert('Condition updated!', 'success');
           }
         });
@@ -378,9 +385,9 @@ export class ConditionDetail extends React.Component {
           Bert.alert(error.reason, 'danger');
         }
         if (result) {
-          HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.state.conditionId});
-          Session.set('conditionPageTabIndex', 1);
-          Session.set('selectedConditionId', false);
+          if(this.props.onInsert){
+            this.props.onInsert(self.data.conditionId);
+          }
           Bert.alert('Condition added!', 'success');
         }
       });
@@ -388,7 +395,9 @@ export class ConditionDetail extends React.Component {
   }
 
   handleCancelButton(){
-    Session.set('conditionPageTabIndex', 1);
+    if(this.props.onCancel){
+      this.props.onCancel();
+    }
   }
 
   handleDeleteButton(){
@@ -400,9 +409,9 @@ export class ConditionDetail extends React.Component {
         Bert.alert(error.reason, 'danger');
       }
       if (result) {
-        HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: self.state.conditionId});
-        Session.set('conditionPageTabIndex', 1);
-        Session.set('selectedConditionId', false);
+        if(this.props.onInsert){
+          this.props.onInsert(self.data.conditionId);
+        }
         Bert.alert('Condition removed!', 'success');
       }
     });
@@ -413,7 +422,12 @@ ConditionDetail.propTypes = {
   id: PropTypes.string,
   conditionId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   condition: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
-  showDatePicker: PropTypes.bool
+  showDatePicker: PropTypes.bool,
+  showHints: PropTypes.bool,
+  onInsert: PropTypes.func,
+  onUpdate: PropTypes.func,
+  onRemove: PropTypes.func,
+  onCancel: PropTypes.func
 };
 ReactMixin(ConditionDetail.prototype, ReactMeteorData);
 export default ConditionDetail;

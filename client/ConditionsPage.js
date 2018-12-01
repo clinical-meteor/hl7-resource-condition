@@ -55,7 +55,24 @@ export class ConditionsPage extends React.Component {
   onNewTab(){
     Session.set('selectedConditionId', false);
   }
-
+  onInsert(conditionId){
+    HipaaLogger.logEvent({eventType: "create", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: conditionId});
+    Session.set('conditionPageTabIndex', 1);
+    Session.set('selectedConditionId', false);
+  }
+  onUpdate(conditionId){
+    HipaaLogger.logEvent({eventType: "update", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: conditionId});
+    Session.set('conditionPageTabIndex', 1);
+    Session.set('selectedConditionId', false);
+}
+  onRemove(conditionId){
+    HipaaLogger.logEvent({eventType: "delete", userId: Meteor.userId(), userName: Meteor.user().fullName(), collectionName: "Conditions", recordId: conditionId});
+    Session.set('conditionPageTabIndex', 1);
+    Session.set('selectedConditionId', false);
+  }
+  onCancel(){
+    Session.set('conditionPageTabIndex', 1);
+  }
   render() {
     if(get(Meteor, 'settings.public.logging') === "debug") console.log('In ConditionsPage render');
     return (
@@ -68,6 +85,7 @@ export class ConditionsPage extends React.Component {
                <Tab id='newConditionTab' className='newConditionTab' label='New' style={this.data.style.tab} onActive={ this.onNewTab } value={0}>
                  <ConditionDetail 
                     id='newCondition'
+                    showHints={true}
                     fhirVersion={ this.data.fhirVersion }
                     condition={ this.data.selectedCondition }
                     conditionId={ this.data.currentConditionId } />  
@@ -90,6 +108,11 @@ export class ConditionsPage extends React.Component {
                   condition={ this.data.selectedCondition }
                   conditionId={ this.data.currentConditionId } 
                   showDatePicker={true} 
+                  showHints={false}
+                  onInsert={ this.onInsert }
+                  onUpdate={ this.onUpdate }
+                  onRemove={ this.onRemove }
+                  onCancel={ this.onCancel }
                  />
                </Tab>
              </Tabs>
