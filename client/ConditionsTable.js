@@ -53,7 +53,16 @@ export class ConditionsTable extends React.Component {
     if(get(Meteor, 'settings.public.logging') === "debug") console.log("ConditionsTable[data]", data);
     return data;
   };
-
+  displayOnMobile(width){
+    let style = {};
+    if(['iPhone'].includes(window.navigator.platform)){
+      style.display = "none";
+    }
+    if(width){
+      style.width = width;
+    }
+    return style;
+  }
   renderTogglesHeader(displayToggle){
     if (displayToggle) {
       return (
@@ -158,6 +167,10 @@ export class ConditionsTable extends React.Component {
     Session.set('conditionPageTabIndex', 2);
   };
   render () {
+
+    
+
+
     let tableRows = [];
     for (var i = 0; i < this.data.conditions.length; i++) {
       var newRow = {
@@ -186,7 +199,7 @@ export class ConditionsTable extends React.Component {
 
       tableRows.push(
         <tr key={i} className="conditionRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
-          <td className='meta' style={{width: '100px'}} >
+          <td className='meta' style={ this.displayOnMobile('100px') } >
             <FaLock style={{marginLeft: '2px', marginRight: '2px'}} />
             <FaTags style={{marginLeft: '2px', marginRight: '2px'}} />
             <FaCode style={{marginLeft: '2px', marginRight: '2px'}} />
@@ -197,9 +210,9 @@ export class ConditionsTable extends React.Component {
           { this.renderPatientName(this.data.displayPatientName, newRow.patientDisplay ) } 
           { this.renderAsserterName(this.data.displayAsserterName, newRow.asserterDisplay ) } 
           <td className='clinicalStatus'>{ newRow.clinicalStatus }</td>
-          <td className='verificationStatus'>{ newRow.verificationStatus }</td>
-          <td className='snomedCode'>{ newRow.snomedCode }</td>
           <td className='snomedDisplay'>{ newRow.snomedDisplay }</td>
+          <td className='snomedCode'>{ newRow.snomedCode }</td>
+          <td className='verificationStatus' style={ this.displayOnMobile()} >{ newRow.verificationStatus }</td>
           <td className='severity'>{ newRow.severity }</td>
           { this.renderEvidence(this.data.displayEvidence, newRow.evidenceDisplay) }
           { this.renderStartDate(this.data.displayDates, this.data.conditions[i].onsetDateTime) }
@@ -208,19 +221,21 @@ export class ConditionsTable extends React.Component {
       )
     }
 
+
+
     return(
       <Table id='conditionsTable' hover >
         <thead>
           <tr>
-            <th className='meta'>Meta</th>
+            <th className='meta' style={ this.displayOnMobile('100px')} >Meta</th>
             { this.renderIdentifierHeader(this.data.displayIdentifier) }
             { this.renderTogglesHeader(this.data.displayToggle) }
             { this.renderPatientNameHeader(this.data.displayPatientName) }
             { this.renderAsserterNameHeader(this.data.displayAsserterName) }
             <th className='clinicalStatus'>status</th>
-            <th className='verificationStatus'>verification</th>
-            <th className='snomedCode'>code</th>
             <th className='snomedDisplay'>condition</th>
+            <th className='snomedCode'>code</th>
+            <th className='verificationStatus' style={ this.displayOnMobile('100px')} >verification</th>
             <th className='severity'>severity</th>
             { this.renderEvidenceHeader(this.data.displayEvidence) }
             { this.renderDateHeader(this.data.displayDates, 'start') }
