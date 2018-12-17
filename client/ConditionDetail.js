@@ -369,8 +369,8 @@ export class ConditionDetail extends React.Component {
             Bert.alert(error.reason, 'danger');
           }
           if (result) {
-            if(this.props.onUpdate){
-              this.props.onUpdate(self.data.conditionId);
+            if(self.props.onUpdate){
+              self.props.onUpdate(self.data.conditionId);
             }
             Bert.alert('Condition updated!', 'success');
           }
@@ -385,8 +385,8 @@ export class ConditionDetail extends React.Component {
           Bert.alert(error.reason, 'danger');
         }
         if (result) {
-          if(this.props.onInsert){
-            this.props.onInsert(self.data.conditionId);
+          if(self.props.onInsert){
+            self.props.onInsert(self.data.conditionId);
           }
           Bert.alert('Condition added!', 'success');
         }
