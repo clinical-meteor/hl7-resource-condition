@@ -199,12 +199,12 @@ export class ConditionsTable extends React.Component {
 
       tableRows.push(
         <tr key={i} className="conditionRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
-          <td className='meta' style={ this.displayOnMobile('100px') } >
+          {/* <td className='meta' style={ this.displayOnMobile('100px') } >
             <FaLock style={{marginLeft: '2px', marginRight: '2px'}} />
             <FaTags style={{marginLeft: '2px', marginRight: '2px'}} />
             <FaCode style={{marginLeft: '2px', marginRight: '2px'}} />
             <FaPuzzlePiece style={{marginLeft: '2px', marginRight: '2px'}} />
-          </td>
+          </td> */}
           { this.renderIdentifier(this.data.displayToggle, this.data.conditions[i]) }
           { this.renderToggles(this.data.displayToggle, this.data.conditions[i]) }
           { this.renderPatientName(this.data.displayPatientName, newRow.patientDisplay ) } 
@@ -227,7 +227,7 @@ export class ConditionsTable extends React.Component {
       <Table id='conditionsTable' hover >
         <thead>
           <tr>
-            <th className='meta' style={ this.displayOnMobile('100px')} >Meta</th>
+            {/* <th className='meta' style={ this.displayOnMobile('100px')} >Meta</th> */}
             { this.renderIdentifierHeader(this.data.displayIdentifier) }
             { this.renderTogglesHeader(this.data.displayToggle) }
             { this.renderPatientNameHeader(this.data.displayPatientName) }
