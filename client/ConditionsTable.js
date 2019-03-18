@@ -1,10 +1,11 @@
-import { Card, CardActions, CardMedia, CardText, CardTitle } from 'material-ui/Card';
+import { Card, CardActions, CardMedia, CardText, CardTitle, Toggle } from 'material-ui';
 
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
 import ReactMixin from 'react-mixin';
 import { Table } from 'react-bootstrap';
 import { get, has } from 'lodash';
+import PropTypes from 'prop-types';
 
 import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
 
@@ -45,8 +46,21 @@ export class ConditionsTable extends React.Component {
     if(this.props.data){
       data.conditions = this.props.data;
     } else {
+
+      let query = {};
+      if(this.props.query){
+        query = this.props.query
+      }
+      if(this.props.hideEnteredInError){
+        query.verificationStatus = {
+          $nin: ["entered-in-error"]  // unconfirmed | provisional | differential | confirmed | refuted | entered-in-error
+        }
+      }
+
+      console.log('ConditionsTable.Conditions.query: ', query)
+
       if(Conditions.find().count() > 0){
-        data.conditions = Conditions.find().fetch();
+        data.conditions = Conditions.find(query).fetch();
       }  
     }
 
@@ -60,44 +74,45 @@ export class ConditionsTable extends React.Component {
     }
     if(width){
       style.width = width;
+    } else {
+      style.minWidth = '140px'
     }
     return style;
   }
-  renderTogglesHeader(displayToggle){
-    if (displayToggle) {
+  renderToggleHeader(){
+    if (!this.props.hideToggle) {
       return (
-        <th className="toggle">toggle</th>
+        <th className="toggle">Toggle</th>
       );
     }
   }
-  renderToggles(displayToggle, patientId ){
-    if (displayToggle) {
+  renderToggle(patientId ){
+    if (!this.props.hideToggle) {
       return (
         <td className="toggle">
             <Toggle
               defaultToggled={true}
-              //style={styles.toggle}
             />
           </td>
       );
     }
   }
-  renderDateHeader(displayDates, header){
-    if (displayDates) {
+  renderDateHeader(header){
+    if (!this.props.hideDates) {
       return (
-        <th className='date'>{header}</th>
+        <th className='date' style={{minWidth: '100px'}}>{header}</th>
       );
     }
   }
-  renderStartDate(displayDates, startDate ){
-    if (displayDates) {
+  renderStartDate(startDate ){
+    if (!this.props.hideDates) {
       return (
         <td className='date'>{ moment(startDate).format('YYYY-MM-DD') }</td>
       );
     }
   }
-  renderEndDate(displayDates, endDate ){
-    if (displayDates) {
+  renderEndDate(endDate ){
+    if (!this.props.hideDates) {
       return (
         <td className='date'>{ moment(endDate).format('YYYY-MM-DD') }</td>
       );
@@ -105,59 +120,93 @@ export class ConditionsTable extends React.Component {
   }
 
 
-  renderPatientNameHeader(displayPatientName){
-    if (displayPatientName) {
+  renderPatientNameHeader(){
+    if (!this.props.hidePatientName) {
       return (
         <th className='patientDisplay'>patient</th>
       );
     }
   }
-  renderPatientName(displayPatientName, patientDisplay ){
-    if (displayPatientName) {
+  renderPatientName(patientDisplay ){
+    if (!this.props.hidePatientName) {
       return (
-        <td className='patientDisplay'>{ patientDisplay }</td>
+        <td className='patientDisplay' style={{minWidth: '140px'}}>{ patientDisplay }</td>
       );
     }
   }
-  renderAsserterNameHeader(displayAsserterName){
-    if (displayAsserterName) {
+  renderAsserterNameHeader(){
+    if (!this.props.hideAsserterName) {
       return (
-        <th className='asserterDisplay'>asserter</th>
+        <th className='asserterDisplay'>Asserter</th>
       );
     }
   }
-  renderAsserterName(displayAsserterName, asserterDisplay ){
-    if (displayAsserterName) {
+  renderAsserterName(asserterDisplay ){
+    if (!this.props.hideAsserterName) {
       return (
-        <td className='asserterDisplay'>{ asserterDisplay }</td>
+        <td className='asserterDisplay' style={{minWidth: '140px'}}>{ asserterDisplay }</td>
       );
     }
   }  
-  renderEvidenceHeader(displayEvidence){
-    if (displayEvidence) {
+
+  renderSeverityHeader(){
+    if (!this.props.hideSeverity) {
       return (
-        <th className='asserterDisplay'>evidence</th>
+        <th className='hideSeverity'>Severity</th>
       );
     }
   }
-  renderEvidence(displayEvidence, evidenceDisplay ){
-    if (displayEvidence) {
+  renderSeverity(severity ){
+    if (!this.props.hideSeverity) {
+      return (
+        <td className='severity'>{ severity }</td>
+      );
+    }
+  } 
+  renderEvidenceHeader(){
+    if (!this.props.hideEvidence) {
+      return (
+        <th className='asserterDisplay'>Evidence</th>
+      );
+    }
+  }
+  renderEvidence(evidenceDisplay ){
+    if (!this.props.hideEvidence) {
       return (
         <td className='evidenceDisplay'>{ evidenceDisplay }</td>
       );
     }
   } 
-  renderIdentifierHeader(displayIdentifier){
-    if (displayIdentifier) {
+  renderIdentifierHeader(){
+    if (!this.props.hideIdentifier) {
       return (
-        <th className='identifier'>identifier</th>
+        <th className='identifier'>Identifier</th>
       );
     }
   }
-  renderIdentifier(displayIdentifier, identifier ){
-    if (displayIdentifier) {
+  renderIdentifier(identifier ){
+    if (!this.props.hideIdentifier) {
       return (
         <td className='identifier'>{ identifier }</td>
+      );
+    }
+  } 
+  renderActionIconsHeader(){
+    if (!this.props.hideActionIcons) {
+      return (
+        <th className='actionIcons'>Actions</th>
+      );
+    }
+  }
+  renderActionIcons( ){
+    if (!this.props.hideActionIcons) {
+      return (
+        <td className='actionIcons' style={{minWidth: '100px'}}>
+          <FaLock style={{marginLeft: '2px', marginRight: '2px'}} />
+          <FaTags style={{marginLeft: '2px', marginRight: '2px'}} />
+          <FaCode style={{marginLeft: '2px', marginRight: '2px'}} />
+          <FaPuzzlePiece style={{marginLeft: '2px', marginRight: '2px'}} />          
+        </td>
       );
     }
   } 
@@ -168,8 +217,7 @@ export class ConditionsTable extends React.Component {
   };
   render () {
 
-    
-
+  
 
     let tableRows = [];
     for (var i = 0; i < this.data.conditions.length; i++) {
@@ -183,7 +231,9 @@ export class ConditionsTable extends React.Component {
         snomedCode: '',
         snomedDisplay: '',
         evidenceDisplay: '',
-        barcode: ''
+        barcode: '',
+        onsetDateTime: '',
+        abatementDateTime: ''
       };
 
       newRow.identifier = get(this.data.conditions[i], 'identifier[0].value');
@@ -196,27 +246,25 @@ export class ConditionsTable extends React.Component {
       newRow.evidenceDisplay = get(this.data.conditions[i], 'evidence[0].detail[0].display');
       newRow.barcode = get(this.data.conditions[i], '_id');
       newRow.severity = get(this.data.conditions[i], 'severity.text');
+      newRow.onsetDateTime = get(this.data.conditions[i], 'onsetDateTime');
+      newRow.abatementDateTime = get(this.data.conditions[i], 'abatementDateTime');
 
       tableRows.push(
         <tr key={i} className="conditionRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
-          {/* <td className='meta' style={ this.displayOnMobile('100px') } >
-            <FaLock style={{marginLeft: '2px', marginRight: '2px'}} />
-            <FaTags style={{marginLeft: '2px', marginRight: '2px'}} />
-            <FaCode style={{marginLeft: '2px', marginRight: '2px'}} />
-            <FaPuzzlePiece style={{marginLeft: '2px', marginRight: '2px'}} />
-          </td> */}
-          { this.renderIdentifier(this.data.displayToggle, this.data.conditions[i]) }
-          { this.renderToggles(this.data.displayToggle, this.data.conditions[i]) }
-          { this.renderPatientName(this.data.displayPatientName, newRow.patientDisplay ) } 
-          { this.renderAsserterName(this.data.displayAsserterName, newRow.asserterDisplay ) } 
+
+          { this.renderToggle() }
+          { this.renderActionIcons() }
+          { this.renderIdentifier(newRow.identifier ) }
+          { this.renderPatientName(newRow.patientDisplay ) } 
+          { this.renderAsserterName(newRow.asserterDisplay ) } 
           <td className='clinicalStatus'>{ newRow.clinicalStatus }</td>
           <td className='snomedDisplay'>{ newRow.snomedDisplay }</td>
           <td className='snomedCode'>{ newRow.snomedCode }</td>
           <td className='verificationStatus' style={ this.displayOnMobile()} >{ newRow.verificationStatus }</td>
-          <td className='severity'>{ newRow.severity }</td>
-          { this.renderEvidence(this.data.displayEvidence, newRow.evidenceDisplay) }
-          { this.renderStartDate(this.data.displayDates, this.data.conditions[i].onsetDateTime) }
-          { this.renderEndDate(this.data.displayDates, this.data.conditions[i].abatementDateTime) }
+          { this.renderSeverity(newRow.severity) }
+          { this.renderEvidence(newRow.evidenceDisplay) }
+          { this.renderStartDate(newRow.onsetDateTime) }
+          { this.renderEndDate(newRow.abatementDateTime) }
         </tr>
       )
     }
@@ -227,19 +275,19 @@ export class ConditionsTable extends React.Component {
       <Table id='conditionsTable' hover >
         <thead>
           <tr>
-            {/* <th className='meta' style={ this.displayOnMobile('100px')} >Meta</th> */}
-            { this.renderIdentifierHeader(this.data.displayIdentifier) }
-            { this.renderTogglesHeader(this.data.displayToggle) }
-            { this.renderPatientNameHeader(this.data.displayPatientName) }
-            { this.renderAsserterNameHeader(this.data.displayAsserterName) }
+            { this.renderToggleHeader() } 
+            { this.renderActionIconsHeader() }
+            { this.renderIdentifierHeader() }
+            { this.renderPatientNameHeader() }
+            { this.renderAsserterNameHeader() }
             <th className='clinicalStatus'>status</th>
             <th className='snomedDisplay'>condition</th>
             <th className='snomedCode'>code</th>
-            <th className='verificationStatus' style={ this.displayOnMobile('100px')} >verification</th>
-            <th className='severity'>severity</th>
-            { this.renderEvidenceHeader(this.data.displayEvidence) }
-            { this.renderDateHeader(this.data.displayDates, 'start') }
-            { this.renderDateHeader(this.data.displayDates, 'end') }
+            <th className='verificationStatus' style={ this.displayOnMobile('140px')} >verification</th>
+            { this.renderSeverityHeader() }
+            { this.renderEvidenceHeader() }
+            { this.renderDateHeader('start') }
+            { this.renderDateHeader('end') }
           </tr>
         </thead>
         <tbody>
@@ -250,6 +298,19 @@ export class ConditionsTable extends React.Component {
   }
 }
 
-
+ConditionsTable.propTypes = {
+  data: PropTypes.array,
+  query: PropTypes.object,
+  paginationLimit: PropTypes.number,
+  hideIdentifier: PropTypes.bool,
+  hideToggle: PropTypes.bool,
+  hideActionIcons: PropTypes.bool,
+  hidePatientName: PropTypes.bool,
+  hideAsserterName: PropTypes.bool,
+  hideEvidence: PropTypes.bool,
+  hideDates: PropTypes.bool,
+  hideSeverity: PropTypes.bool,
+  hideEnteredInError: PropTypes.bool
+};
 ReactMixin(ConditionsTable.prototype, ReactMeteorData);
 export default ConditionsTable;
