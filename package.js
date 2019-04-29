@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-condition',
-  version: '1.8.4',
+  version: '1.8.5',
   summary: 'HL7 FHIR Resource - Condition',
   git: 'https://github.com/clinical-meteor/hl7-resource-condition',
   documentation: 'README.md'

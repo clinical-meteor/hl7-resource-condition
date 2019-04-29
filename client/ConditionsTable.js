@@ -8,6 +8,7 @@ import { get, has } from 'lodash';
 import PropTypes from 'prop-types';
 
 import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
+import { GoTrashcan } from 'react-icons/go'
 
 export class ConditionsTable extends React.Component {
 
@@ -67,6 +68,18 @@ export class ConditionsTable extends React.Component {
     if(get(Meteor, 'settings.public.logging') === "debug") console.log("ConditionsTable[data]", data);
     return data;
   };
+  removeRecord(_id){
+    console.log('Remove condition ', _id)
+    Conditions._collection.remove({_id: _id})
+  }
+  showSecurityDialog(condition){
+    console.log('showSecurityDialog', condition)
+
+    Session.set('securityDialogResourceJson', Conditions.findOne(get(condition, '_id')));
+    Session.set('securityDialogResourceType', 'Condition');
+    Session.set('securityDialogResourceId', get(condition, '_id'));
+    Session.set('securityDialogOpen', true);
+  }
   displayOnMobile(width){
     let style = {};
     if(['iPhone'].includes(window.navigator.platform)){
@@ -82,7 +95,7 @@ export class ConditionsTable extends React.Component {
   renderToggleHeader(){
     if (!this.props.hideToggle) {
       return (
-        <th className="toggle">Toggle</th>
+        <th className="toggle" style={{width: '60px'}} >Toggle</th>
       );
     }
   }
@@ -198,14 +211,20 @@ export class ConditionsTable extends React.Component {
       );
     }
   }
-  renderActionIcons( ){
+  renderActionIcons( condition ){
     if (!this.props.hideActionIcons) {
+
+      let iconStyle = {
+        marginLeft: '4px', 
+        marginRight: '4px', 
+        marginTop: '4px', 
+        fontSize: '120%'
+      }
+
       return (
-        <td className='actionIcons' style={{minWidth: '100px'}}>
-          <FaLock style={{marginLeft: '2px', marginRight: '2px'}} />
-          <FaTags style={{marginLeft: '2px', marginRight: '2px'}} />
-          <FaCode style={{marginLeft: '2px', marginRight: '2px'}} />
-          <FaPuzzlePiece style={{marginLeft: '2px', marginRight: '2px'}} />          
+        <td className='actionIcons' style={{minWidth: '120px'}}>
+          <FaTags style={iconStyle} onClick={this.showSecurityDialog.bind(this, condition)} />
+          <GoTrashcan style={iconStyle} onClick={this.removeRecord.bind(this, condition._id)} />  
         </td>
       );
     }
@@ -249,11 +268,18 @@ export class ConditionsTable extends React.Component {
       newRow.onsetDateTime = get(this.data.conditions[i], 'onsetDateTime');
       newRow.abatementDateTime = get(this.data.conditions[i], 'abatementDateTime');
 
+      let rowStyle = {
+        cursor: 'pointer'
+      }
+      if(get(this.data.conditions[i], 'modifierExtension[0]')){
+        rowStyle.color = "orange";
+      }
+
       tableRows.push(
-        <tr key={i} className="conditionRow" style={{cursor: "pointer"}} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
+        <tr key={i} className="conditionRow" style={rowStyle} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
 
           { this.renderToggle() }
-          { this.renderActionIcons() }
+          { this.renderActionIcons(this.data.conditions[i]) }
           { this.renderIdentifier(newRow.identifier ) }
           { this.renderPatientName(newRow.patientDisplay ) } 
           { this.renderAsserterName(newRow.asserterDisplay ) } 
