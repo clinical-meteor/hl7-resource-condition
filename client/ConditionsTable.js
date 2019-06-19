@@ -1,4 +1,4 @@
-import { Card, CardActions, CardMedia, CardText, CardTitle, Toggle } from 'material-ui';
+import { Card, CardActions, CardMedia, CardText, CardTitle, Checkbox } from 'material-ui';
 
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
@@ -20,7 +20,7 @@ export class ConditionsTable extends React.Component {
       },
       selected: [],
       conditions: [],
-      displayToggle: false,
+      displayCheckbox: false,
       displayDates: false,
       displayPatientName: false,
       displayAsserterName: false,
@@ -34,8 +34,8 @@ export class ConditionsTable extends React.Component {
     if(this.props.displayAsserterName){
       data.displayAsserterName = this.props.displayAsserterName;
     }
-    if(this.props.displayToggles){
-      data.displayToggle = this.props.displayToggles;
+    if(this.props.displayCheckboxs){
+      data.displayCheckbox = this.props.displayCheckboxs;
     }
     if(this.props.displayDates){
       data.displayDates = this.props.displayDates;
@@ -58,22 +58,22 @@ export class ConditionsTable extends React.Component {
         }
       }
 
-      console.log('ConditionsTable.Conditions.query: ', query)
+      //console.log('ConditionsTable.Conditions.query: ', query)
 
       if(Conditions.find().count() > 0){
         data.conditions = Conditions.find(query).fetch();
       }  
     }
 
-    if(get(Meteor, 'settings.public.logging') === "debug") console.log("ConditionsTable[data]", data);
+    // if(get(Meteor, 'settings.public.logging') === "debug") console.log("ConditionsTable[data]", data);
     return data;
   };
   removeRecord(_id){
-    console.log('Remove condition ', _id)
+    console.log('Removing condition ', _id)
     Conditions._collection.remove({_id: _id})
   }
   showSecurityDialog(condition){
-    console.log('showSecurityDialog', condition)
+    // console.log('showSecurityDialog', condition)
 
     Session.set('securityDialogResourceJson', Conditions.findOne(get(condition, '_id')));
     Session.set('securityDialogResourceType', 'Condition');
@@ -92,19 +92,19 @@ export class ConditionsTable extends React.Component {
     }
     return style;
   }
-  renderToggleHeader(){
-    if (!this.props.hideToggle) {
+  renderCheckboxHeader(){
+    if (!this.props.hideCheckboxes) {
       return (
-        <th className="toggle" style={{width: '60px'}} >Toggle</th>
+        <th className="toggle" style={{width: '60px'}} >Checkbox</th>
       );
     }
   }
-  renderToggle(patientId ){
-    if (!this.props.hideToggle) {
+  renderCheckbox(patientId ){
+    if (!this.props.hideCheckboxes) {
       return (
         <td className="toggle">
-            <Toggle
-              defaultToggled={true}
+            <Checkbox
+              defaultCheckbox={true}
             />
           </td>
       );
@@ -136,7 +136,7 @@ export class ConditionsTable extends React.Component {
   renderPatientNameHeader(){
     if (!this.props.hidePatientName) {
       return (
-        <th className='patientDisplay'>patient</th>
+        <th className='patientDisplay'>Patient</th>
       );
     }
   }
@@ -222,7 +222,7 @@ export class ConditionsTable extends React.Component {
       }
 
       return (
-        <td className='actionIcons' style={{minWidth: '120px'}}>
+        <td className='actionIcons' style={{width: '100px'}}>
           <FaTags style={iconStyle} onClick={this.showSecurityDialog.bind(this, condition)} />
           <GoTrashcan style={iconStyle} onClick={this.removeRecord.bind(this, condition._id)} />  
         </td>
@@ -278,7 +278,7 @@ export class ConditionsTable extends React.Component {
       tableRows.push(
         <tr key={i} className="conditionRow" style={rowStyle} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
 
-          { this.renderToggle() }
+          { this.renderCheckbox() }
           { this.renderActionIcons(this.data.conditions[i]) }
           { this.renderIdentifier(newRow.identifier ) }
           { this.renderPatientName(newRow.patientDisplay ) } 
@@ -301,19 +301,19 @@ export class ConditionsTable extends React.Component {
       <Table id='conditionsTable' hover >
         <thead>
           <tr>
-            { this.renderToggleHeader() } 
+            { this.renderCheckboxHeader() } 
             { this.renderActionIconsHeader() }
             { this.renderIdentifierHeader() }
             { this.renderPatientNameHeader() }
             { this.renderAsserterNameHeader() }
-            <th className='clinicalStatus'>status</th>
-            <th className='snomedDisplay'>condition</th>
-            <th className='snomedCode'>code</th>
-            <th className='verificationStatus' style={ this.displayOnMobile('140px')} >verification</th>
+            <th className='clinicalStatus'>Status</th>
+            <th className='snomedDisplay'>Condition</th>
+            <th className='snomedCode'>Code</th>
+            <th className='verificationStatus' style={ this.displayOnMobile('140px')} >Verification</th>
             { this.renderSeverityHeader() }
             { this.renderEvidenceHeader() }
-            { this.renderDateHeader('start') }
-            { this.renderDateHeader('end') }
+            { this.renderDateHeader('Start') }
+            { this.renderDateHeader('End') }
           </tr>
         </thead>
         <tbody>
@@ -329,7 +329,7 @@ ConditionsTable.propTypes = {
   query: PropTypes.object,
   paginationLimit: PropTypes.number,
   hideIdentifier: PropTypes.bool,
-  hideToggle: PropTypes.bool,
+  hideCheckboxes: PropTypes.bool,
   hideActionIcons: PropTypes.bool,
   hidePatientName: PropTypes.bool,
   hideAsserterName: PropTypes.bool,
