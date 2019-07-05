@@ -54,7 +54,8 @@ export class ConditionDetail extends React.Component {
         snomedDisplay: '',
         clinicalStatus: '',
         verificationStatus: '',
-        evidenceDisplay: ''
+        evidenceDisplay: '',
+        onsetDateTime: ''
       }
     }
   }
@@ -67,6 +68,7 @@ export class ConditionDetail extends React.Component {
     formData.snomedDisplay = get(condition, 'code.coding[0].display')
     formData.clinicalStatus = get(condition, 'clinicalStatus')
     formData.verificationStatus = get(condition, 'verificationStatus')
+    formData.onsetDateTime = get(condition, 'onsetDateTime')
 
     return formData;
   }
@@ -112,7 +114,15 @@ export class ConditionDetail extends React.Component {
 
     return data;
   }
-  renderDatePicker(showDatePicker, datePickerValue){
+  renderDatePicker(showDatePicker, form){
+    let datePickerValue;
+
+    if(get(form, 'onsetDateTime')){
+      datePickerValue = get(form, 'onsetDateTime');
+    }
+    if(get(form, 'onsetPeriod.start')){
+      datePickerValue = get(form, 'onsetPeriod.start');
+    }
     if (typeof datePickerValue === "string"){
       datePickerValue = new Date(datePickerValue);
     }
@@ -222,9 +232,9 @@ export class ConditionDetail extends React.Component {
           </Row>
 
 
-          {/* <br/>
-          { this.renderDatePicker(this.data.showDatePicker, get(this, 'data.condition.onsetDateTime') ) }
-          <br/> */}
+          <br/>
+          { this.renderDatePicker(this.data.showDatePicker, get(this, 'data.form') ) }
+          <br/>
 
           <a href='http://browser.ihtsdotools.org/?perspective=full&conceptId1=404684003&edition=us-edition&release=v20180301&server=https://prod-browser-exten.ihtsdotools.org/api/snomed&langRefset=900000000000509007'>Lookup codes with the SNOMED CT Browser</a>
 
@@ -315,6 +325,10 @@ export class ConditionDetail extends React.Component {
       case "datePicker":
         set(conditionData, 'onsetDateTime', textValue)
         break;
+      case "onsetDateTime":
+        set(conditionData, 'onsetDateTime', textValue)
+        break;
+  
     }
     return conditionData;
   }

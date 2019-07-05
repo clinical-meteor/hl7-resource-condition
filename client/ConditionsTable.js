@@ -104,7 +104,7 @@ export class ConditionsTable extends React.Component {
       return (
         <td className="toggle">
             <Checkbox
-              defaultCheckbox={true}
+              defaultChecked={true}
             />
           </td>
       );
@@ -222,7 +222,7 @@ export class ConditionsTable extends React.Component {
       }
 
       return (
-        <td className='actionIcons' style={{width: '100px'}}>
+        <td className='actionIcons' style={{width: '120px'}}>
           <FaTags style={iconStyle} onClick={this.showSecurityDialog.bind(this, condition)} />
           <GoTrashcan style={iconStyle} onClick={this.removeRecord.bind(this, condition._id)} />  
         </td>

@@ -1,5 +1,5 @@
 import { CardText, CardTitle, Tab, Tabs } from 'material-ui';
-import { GlassCard, VerticalCanvas, Glass } from 'meteor/clinical:glass-ui';
+import { GlassCard, VerticalCanvas, FullPageCanvas, Glass } from 'meteor/clinical:glass-ui';
 
 import ConditionDetail from './ConditionDetail';
 import ConditionsTable from './ConditionsTable';
@@ -77,7 +77,7 @@ export class ConditionsPage extends React.Component {
     if(get(Meteor, 'settings.public.logging') === "debug") console.log('In ConditionsPage render');
     return (
       <div id='conditionsPage'>
-        <VerticalCanvas>
+        <FullPageCanvas>
           <GlassCard height='auto'>
             <CardTitle title='Conditions' />
             <CardText>
@@ -87,17 +87,19 @@ export class ConditionsPage extends React.Component {
                     id='newCondition'
                     showHints={true}
                     fhirVersion={ this.data.fhirVersion }
+                    showDatePicker={true} 
                     condition={ this.data.selectedCondition }
-                    conditionId={ this.data.currentConditionId } />  
+                    conditionId={ this.data.currentConditionId } 
+                    onInsert={ this.onInsert }
+                    />  
                </Tab>
                <Tab id='conditionListTab' className="conditionListTab" label='Conditions' onActive={this.handleActive} style={this.data.style.tab} value={1}>
                 <ConditionsTable 
-                  displayPatientName={true}
-                  displayAsserterName={true}
-                  displayToggle={true}
+                  hidePatientName={false}
+                  hideAsserterName={false}
+                  hideCheckboxes={true}
                   displayEvidence={false}
-                  displayDates={true}
-                  displayIdentifier={false}
+                  hideIdentifier={true}
                   noDataMessagePadding={100}
                 />
                </Tab>
@@ -118,7 +120,7 @@ export class ConditionsPage extends React.Component {
              </Tabs>
             </CardText>
           </GlassCard>
-        </VerticalCanvas>
+        </FullPageCanvas>
       </div>
     );
   }
