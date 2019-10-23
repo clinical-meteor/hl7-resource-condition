@@ -77,7 +77,7 @@ export class ConditionsPage extends React.Component {
     if(get(Meteor, 'settings.public.logging') === "debug") console.log('In ConditionsPage render');
     return (
       <div id='conditionsPage'>
-        <FullPageCanvas>
+        <FullPageCanvas demographicsHeight={220} >
           <GlassCard height='auto'>
             <CardTitle title='Conditions' />
             <CardText>

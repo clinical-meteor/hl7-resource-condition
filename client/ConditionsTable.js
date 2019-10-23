@@ -26,7 +26,7 @@ export class ConditionsTable extends React.Component {
       displayAsserterName: false,
       displayEvidence: false,
       displayIdentifier: false
-    }
+    } 
     
     if(this.props.displayPatientName){
       data.displayPatientName = this.props.displayPatientName;
@@ -204,6 +204,34 @@ export class ConditionsTable extends React.Component {
       );
     }
   } 
+  renderStatus(clinicalStatus){
+    if (this.props.displayStatus) {
+      return (
+        <td className='clinicalStatus'>{ clinicalStatus }</td>
+      );
+    }
+  }
+  renderStatusHeader(){
+    if (this.props.displayStatus) {
+      return (
+        <th className='clinicalStatus'>Status</th>
+      );
+    }
+  }
+  renderVerification(verificationStatus){
+    if (this.props.displayVerification) {
+      return (
+        <td className='verificationStatus' style={ this.displayOnMobile()} >{ verificationStatus }</td>
+      );
+    }
+  }
+  renderVerificationHeader(){
+    if (this.props.displayVerification) {
+      return (
+        <th className='verificationStatus' style={ this.displayOnMobile('140px')} >Verification</th>
+      );
+    }
+  }
   renderActionIconsHeader(){
     if (!this.props.hideActionIcons) {
       return (
@@ -283,10 +311,11 @@ export class ConditionsTable extends React.Component {
           { this.renderIdentifier(newRow.identifier ) }
           { this.renderPatientName(newRow.patientDisplay ) } 
           { this.renderAsserterName(newRow.asserterDisplay ) } 
-          <td className='clinicalStatus'>{ newRow.clinicalStatus }</td>
-          <td className='snomedDisplay'>{ newRow.snomedDisplay }</td>
+          { this.renderStatus(newRow.clinicalStatus ) } 
+          
           <td className='snomedCode'>{ newRow.snomedCode }</td>
-          <td className='verificationStatus' style={ this.displayOnMobile()} >{ newRow.verificationStatus }</td>
+          <td className='snomedDisplay' style={{whiteSpace: 'nowrap'}}>{ newRow.snomedDisplay }</td>
+          { this.renderVerification(newRow.verificationStatus ) } 
           { this.renderSeverity(newRow.severity) }
           { this.renderEvidence(newRow.evidenceDisplay) }
           { this.renderStartDate(newRow.onsetDateTime) }
@@ -306,10 +335,12 @@ export class ConditionsTable extends React.Component {
             { this.renderIdentifierHeader() }
             { this.renderPatientNameHeader() }
             { this.renderAsserterNameHeader() }
-            <th className='clinicalStatus'>Status</th>
-            <th className='snomedDisplay'>Condition</th>
+            { this.renderStatusHeader() }
+            
             <th className='snomedCode'>Code</th>
-            <th className='verificationStatus' style={ this.displayOnMobile('140px')} >Verification</th>
+            <th className='snomedDisplay'>Condition</th>
+
+            { this.renderVerificationHeader() }
             { this.renderSeverityHeader() }
             { this.renderEvidenceHeader() }
             { this.renderDateHeader('Start') }
@@ -328,6 +359,9 @@ ConditionsTable.propTypes = {
   data: PropTypes.array,
   query: PropTypes.object,
   paginationLimit: PropTypes.number,
+  status: PropTypes.string,
+  displayStatus: PropTypes.bool,
+  displayVerification: PropTypes.bool,
   hideIdentifier: PropTypes.bool,
   hideCheckboxes: PropTypes.bool,
   hideActionIcons: PropTypes.bool,
