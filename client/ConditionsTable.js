@@ -1,86 +1,160 @@
-import { Card, CardActions, CardMedia, CardText, CardTitle, Checkbox } from 'material-ui';
-
-import React from 'react';
-import { ReactMeteorData } from 'meteor/react-meteor-data';
-import ReactMixin from 'react-mixin';
-import { Table } from 'react-bootstrap';
-import { get, has } from 'lodash';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+
+// import { Card, CardActions, CardMedia, CardText, CardTitle, Checkbox } from 'material-ui';
+
+import { 
+  Button,
+  Card,
+  Checkbox,
+  CardActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableFooter,
+  TablePagination,
+  IconButton,
+  FirstPageIcon,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  LastPageIcon
+} from '@material-ui/core';
+
+// import { ReactMeteorData } from 'meteor/react-meteor-data';
+// import ReactMixin from 'react-mixin';
+// // import { Table } from 'react-bootstrap';
+// import { get, has } from 'lodash';
+
+import moment from 'moment-es6'
+import _ from 'lodash';
+let get = _.get;
+let set = _.set;
 
 import { FaTags, FaCode, FaPuzzlePiece, FaLock  } from 'react-icons/fa';
 import { GoTrashcan } from 'react-icons/go'
 
-export class ConditionsTable extends React.Component {
+import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
 
-  getMeteorData() {
 
-    let data = {
-      style: {
-        opacity: Session.get('globalOpacity')
-      },
-      selected: [],
-      conditions: [],
-      displayCheckbox: false,
-      displayDates: false,
-      displayPatientName: false,
-      displayAsserterName: false,
-      displayEvidence: false,
-      displayIdentifier: false
-    } 
-    
-    if(this.props.displayPatientName){
-      data.displayPatientName = this.props.displayPatientName;
-    }
-    if(this.props.displayAsserterName){
-      data.displayAsserterName = this.props.displayAsserterName;
-    }
-    if(this.props.displayCheckboxs){
-      data.displayCheckbox = this.props.displayCheckboxs;
-    }
-    if(this.props.displayDates){
-      data.displayDates = this.props.displayDates;
-    }
-    if(this.props.displayEvidence){
-      data.displayEvidence = this.props.displayEvidence;
-    }
+//===========================================================================
+// THEMING
 
-    if(this.props.data){
-      data.conditions = this.props.data;
-    } else {
+import { ThemeProvider, makeStyles } from '@material-ui/styles';
+const useStyles = makeStyles(theme => ({
+  button: {
+    background: theme.background,
+    border: 0,
+    borderRadius: 3,
+    boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+    color: theme.buttonText,
+    height: 48,
+    padding: '0 30px',
+  }
+}));
 
-      let query = {};
-      if(this.props.query){
-        query = this.props.query
-      }
-      if(this.props.hideEnteredInError){
-        query.verificationStatus = {
-          $nin: ["entered-in-error"]  // unconfirmed | provisional | differential | confirmed | refuted | entered-in-error
-        }
-      }
+//===========================================================================
+// FLATTENING / MAPPING
 
-      //console.log('ConditionsTable.Conditions.query: ', query)
-
-      if(Conditions.find().count() > 0){
-        data.conditions = Conditions.find(query).fetch();
-      }  
-    }
-
-    // if(get(Meteor, 'settings.public.logging') === "debug") console.log("ConditionsTable[data]", data);
-    return data;
+flattenCondition = function(condition, dateFormat){
+  let result = {
+    _id: '',
+    id: '',
+    meta: '',
+    identifier: '',
+    clinicalStatus: '',
+    patientDisplay: '',
+    patientReference: '',
+    asserterDisplay: '',
+    verificationStatus: '',
+    severity: '',
+    snomedCode: '',
+    snomedDisplay: '',
+    evidenceDisplay: '',
+    barcode: '',
+    onsetDateTime: '',
+    abatementDateTime: ''
   };
-  removeRecord(_id){
-    console.log('Removing condition ', _id)
+
+  if(!dateFormat){
+    dateFormat = get(Meteor, "settings.public.defaults.dateFormat", "YYYY-MM-DD");
+  }
+
+  result._id =  get(condition, 'id') ? get(condition, 'id') : get(condition, '_id');
+  result.id = get(condition, 'id', '');
+  result.identifier = get(condition, 'identifier[0].value', '');
+
+  if(get(condition, 'patient')){
+    result.patientDisplay = get(condition, 'patient.display', '');
+    result.patientReference = get(condition, 'patient.reference', '');
+  } else if (get(condition, 'subject')){
+    result.patientDisplay = get(condition, 'subject.display', '');
+    result.patientReference = get(condition, 'subject.reference', '');
+  }
+  result.asserterDisplay = get(condition, 'asserter.display', '');
+  result.clinicalStatus = get(condition, 'clinicalStatus', '');
+  result.verificationStatus = get(condition, 'verificationStatus', '');
+  result.snomedCode = get(condition, 'code.coding[0].code', '');
+  result.snomedDisplay = get(condition, 'code.coding[0].display', '');
+  result.evidenceDisplay = get(condition, 'evidence[0].detail[0].display', '');
+  result.barcode = get(condition, '_id', '');
+  result.severity = get(condition, 'severity.text', '');
+  result.onsetDateTime = moment(get(condition, 'onsetDateTime', '')).format("YYYY-MM-DD");
+  result.abatementDateTime = moment(get(condition, 'abatementDateTime', '')).format("YYYY-MM-DD");
+
+  return result;
+}
+
+
+function ConditionsTable(props){
+  logger.info('Rendering the ConditionsTable');
+  logger.verbose('clinical:hl7-resource-encounter.client.ConditionsTable');
+  logger.data('ConditionsTable.props', {data: props}, {source: "ConditionsTable.jsx"});
+
+  const classes = useStyles();
+
+  //---------------------------------------------------------------------
+  // Pagination
+
+  let rows = [];
+  let rowsPerPageToRender = 5;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  if(props.rowsPerPage){
+    // if we receive an override as a prop, render that many rows
+    // best to use rowsPerPage with disablePagination
+    rowsPerPageToRender = props.rowsPerPage;
+  } else {
+    // otherwise default to the user selection
+    rowsPerPageToRender = rowsPerPage;
+  }
+
+  let paginationCount = 101;
+  if(props.count){
+    paginationCount = props.count;
+  } else {
+    paginationCount = rows.length;
+  }
+
+  //---------------------------------------------------------------------
+  // Helper Functions
+
+  function removeRecord(_id){
+    logger.info('Removing condition: ' + _id)
     Conditions._collection.remove({_id: _id})
   }
-  showSecurityDialog(condition){
-    // console.log('showSecurityDialog', condition)
+  function showSecurityDialog(condition){
+    // logger.log('showSecurityDialog', condition)
 
     Session.set('securityDialogResourceJson', Conditions.findOne(get(condition, '_id')));
     Session.set('securityDialogResourceType', 'Condition');
     Session.set('securityDialogResourceId', get(condition, '_id'));
     Session.set('securityDialogOpen', true);
   }
-  displayOnMobile(width){
+  function displayOnMobile(width){
     let style = {};
     if(['iPhone'].includes(window.navigator.platform)){
       style.display = "none";
@@ -92,155 +166,194 @@ export class ConditionsTable extends React.Component {
     }
     return style;
   }
-  renderCheckboxHeader(){
-    if (!this.props.hideCheckboxes) {
+  function renderCheckboxHeader(){
+    if (props.renderCheckboxes) {
       return (
-        <th className="toggle" style={{width: '60px'}} >Checkbox</th>
+        <TableCell className="toggle" style={{width: '60px'}} >Checkbox</TableCell>
       );
     }
   }
-  renderCheckbox(patientId ){
-    if (!this.props.hideCheckboxes) {
+  function renderCheckbox(patientId ){
+    if (props.renderCheckboxes) {
       return (
-        <td className="toggle">
-            <Checkbox
-              defaultChecked={true}
-            />
-          </td>
+        <TableCell className="toggle">
+          <Checkbox
+            defaultChecked={true}
+          />
+        </TableCell>
       );
     }
   }
-  renderDateHeader(header){
-    if (!this.props.hideDates) {
+  function renderDateHeader(header){
+    if (props.renderDates) {
       return (
-        <th className='date' style={{minWidth: '100px'}}>{header}</th>
+        <TableCell className='date' style={{minWidth: '100px'}}>{header}</TableCell>
       );
     }
   }
-  renderStartDate(startDate ){
-    if (!this.props.hideDates) {
+  function renderStartDate(startDate ){
+    if (props.renderDates) {
       return (
-        <td className='date'>{ moment(startDate).format('YYYY-MM-DD') }</td>
+        <TableCell className='date'>{ moment(startDate).format('YYYY-MM-DD') }</TableCell>
       );
     }
   }
-  renderEndDate(endDate ){
-    if (!this.props.hideDates) {
+  function renderEndDate(endDate ){
+    if (props.renderDates) {
       return (
-        <td className='date'>{ moment(endDate).format('YYYY-MM-DD') }</td>
+        <TableCell className='date'>{ moment(endDate).format('YYYY-MM-DD') }</TableCell>
       );
     }
   }
-
-
-  renderPatientNameHeader(){
-    if (!this.props.hidePatientName) {
+  function renderPatientNameHeader(){
+    if (props.renderPatientName) {
       return (
-        <th className='patientDisplay'>Patient</th>
+        <TableCell className='patientDisplay'>Patient</TableCell>
       );
     }
   }
-  renderPatientName(patientDisplay ){
-    if (!this.props.hidePatientName) {
+  function renderPatientName(patientDisplay ){
+    if (props.renderPatientName) {
       return (
-        <td className='patientDisplay' style={{minWidth: '140px'}}>{ patientDisplay }</td>
+        <TableCell className='patientDisplay' style={{minWidth: '140px'}}>{ patientDisplay }</TableCell>
       );
     }
   }
-  renderAsserterNameHeader(){
-    if (!this.props.hideAsserterName) {
+  function renderPatientReferenceHeader(){
+    if (props.renderPatientReference) {
       return (
-        <th className='asserterDisplay'>Asserter</th>
+        <TableCell className='patientReference'>Patient Reference</TableCell>
       );
     }
   }
-  renderAsserterName(asserterDisplay ){
-    if (!this.props.hideAsserterName) {
+  function renderPatientReference(patientReference ){
+    if (props.renderPatientReference) {
       return (
-        <td className='asserterDisplay' style={{minWidth: '140px'}}>{ asserterDisplay }</td>
+        <TableCell className='patientReference' style={{minWidth: '140px'}}>{ patientReference }</TableCell>
+      );
+    }
+  }
+  function renderAsserterNameHeader(){
+    if (props.renderAsserterName) {
+      return (
+        <TableCell className='asserterDisplay'>Asserter</TableCell>
+      );
+    }
+  }
+  function renderAsserterName(asserterDisplay ){
+    if (props.renderAsserterName) {
+      return (
+        <TableCell className='asserterDisplay' style={{minWidth: '140px'}}>{ asserterDisplay }</TableCell>
       );
     }
   }  
-
-  renderSeverityHeader(){
-    if (!this.props.hideSeverity) {
+  function renderSeverityHeader(){
+    if (props.renderSeverity) {
       return (
-        <th className='hideSeverity'>Severity</th>
+        <TableCell className='renderSeverity'>Severity</TableCell>
       );
     }
   }
-  renderSeverity(severity ){
-    if (!this.props.hideSeverity) {
+  function renderSeverity(severity ){
+    if (props.renderSeverity) {
       return (
-        <td className='severity'>{ severity }</td>
+        <TableCell className='severity'>{ severity }</TableCell>
       );
     }
   } 
-  renderEvidenceHeader(){
-    if (!this.props.hideEvidence) {
+  function renderEvidenceHeader(){
+    if (props.renderEvidence) {
       return (
-        <th className='asserterDisplay'>Evidence</th>
+        <TableCell className='evidence'>Evidence</TableCell>
       );
     }
   }
-  renderEvidence(evidenceDisplay ){
-    if (!this.props.hideEvidence) {
+  function renderEvidence(evidenceDisplay ){
+    if (props.renderEvidence) {
       return (
-        <td className='evidenceDisplay'>{ evidenceDisplay }</td>
+        <TableCell className='evidence'>{ evidenceDisplay }</TableCell>
       );
     }
   } 
-  renderIdentifierHeader(){
-    if (!this.props.hideIdentifier) {
+  function renderIdentifierHeader(){
+    if (props.renderIdentifier) {
       return (
-        <th className='identifier'>Identifier</th>
+        <TableCell className='identifier'>Identifier</TableCell>
       );
     }
   }
-  renderIdentifier(identifier ){
-    if (!this.props.hideIdentifier) {
+  function renderIdentifier(identifier ){
+    if (props.renderIdentifier) {
       return (
-        <td className='identifier'>{ identifier }</td>
+        <TableCell className='identifier'>{ identifier }</TableCell>
       );
     }
   } 
-  renderStatus(clinicalStatus){
-    if (this.props.displayStatus) {
+  function renderClinicalStatus(clinicalStatus){
+    if (props.renderClinicalStatus) {
       return (
-        <td className='clinicalStatus'>{ clinicalStatus }</td>
+        <TableCell className='clinicalStatus'>{ clinicalStatus }</TableCell>
       );
     }
   }
-  renderStatusHeader(){
-    if (this.props.displayStatus) {
+  function renderClinicalStatusHeader(){
+    if (props.renderClinicalStatus) {
       return (
-        <th className='clinicalStatus'>Status</th>
+        <TableCell className='clinicalStatus'>Clinical Status</TableCell>
       );
     }
   }
-  renderVerification(verificationStatus){
-    if (this.props.displayVerification) {
+  function renderSnomedCode(snomedCode){
+    if (props.renderSnomedCode) {
       return (
-        <td className='verificationStatus' style={ this.displayOnMobile()} >{ verificationStatus }</td>
+        <TableCell className='snomedCode'>{ snomedCode }</TableCell>
       );
     }
   }
-  renderVerificationHeader(){
-    if (this.props.displayVerification) {
+  function renderSnomedCodeHeader(){
+    if (props.renderSnomedCode) {
       return (
-        <th className='verificationStatus' style={ this.displayOnMobile('140px')} >Verification</th>
+        <TableCell className='snomedCode'>SNOMED Code</TableCell>
       );
     }
   }
-  renderActionIconsHeader(){
-    if (!this.props.hideActionIcons) {
+  function renderSnomedDisplay(snomedDisplay){
+    if (props.renderSnomedDisplay) {
       return (
-        <th className='actionIcons'>Actions</th>
+        <TableCell className='snomedDisplay' style={{whiteSpace: 'nowrap'}} >{ snomedDisplay }</TableCell>
       );
     }
   }
-  renderActionIcons( condition ){
-    if (!this.props.hideActionIcons) {
+  function renderSnomedDisplayHeader(){
+    if (props.renderSnomedDisplay) {
+      return (
+        <TableCell className='snomedDisplay'>SNOMED Display</TableCell>
+      );
+    }
+  }
+  function renderVerification(verificationStatus){
+    if (props.renderVerification) {
+      return (
+        <TableCell className='verificationStatus' style={ displayOnMobile()} >{ verificationStatus }</TableCell>
+      );
+    }
+  }
+  function renderVerificationHeader(){
+    if (props.renderVerification) {
+      return (
+        <TableCell className='verificationStatus' style={ displayOnMobile('140px')} >Verification</TableCell>
+      );
+    }
+  }
+  function renderActionIconsHeader(){
+    if (props.renderActionIcons) {
+      return (
+        <TableCell className='actionIcons'>Actions</TableCell>
+      );
+    }
+  }
+  function renderActionIcons( condition ){
+    if (props.renderActionIcons) {
 
       let iconStyle = {
         marginLeft: '4px', 
@@ -250,127 +363,220 @@ export class ConditionsTable extends React.Component {
       }
 
       return (
-        <td className='actionIcons' style={{width: '120px'}}>
-          <FaTags style={iconStyle} onClick={this.showSecurityDialog.bind(this, condition)} />
-          <GoTrashcan style={iconStyle} onClick={this.removeRecord.bind(this, condition._id)} />  
-        </td>
+        <TableCell className='actionIcons' style={{width: '120px'}}>
+          <FaTags style={iconStyle} onClick={showSecurityDialog.bind(this, condition)} />
+          <GoTrashcan style={iconStyle} onClick={removeRecord.bind(this, condition._id)} />  
+        </TableCell>
       );
     }
   } 
 
-  rowClick(id){
+  function renderBarcode(id){
+    if (!props.renderBarcode) {
+      return (
+        <TableCell><span className="barcode helveticas">{id}</span></TableCell>
+      );
+    }
+  }
+  function renderBarcodeHeader(){
+    if (!props.renderBarcode) {
+      return (
+        <TableCell>System ID</TableCell>
+      );
+    }
+  }
+  function renderActionButtonHeader(){
+    if (props.showActionButton === true) {
+      return (
+        <TableCell className='ActionButton' >Action</TableCell>
+      );
+    }
+  }
+  function renderActionButton(patient){
+    if (props.showActionButton === true) {
+      return (
+        <TableCell className='ActionButton' >
+          <Button onClick={ onActionButtonClick.bind(this, patient[i]._id)}>{ get(props, "actionButtonLabel", "") }</Button>
+        </TableCell>
+      );
+    }
+  }
+
+  function rowClick(id){
     Session.set('selectedConditionId', id);
     Session.set('conditionPageTabIndex', 2);
   };
-  render () {
+
+
+  let tableRows = [];
+  let conditionsToRender = [];
+  let dateFormat = "YYYY-MM-DD";
+
+  if(props.showMinutes){
+    dateFormat = "YYYY-MM-DD hh:mm";
+  }
+  if(props.dateFormat){
+    dateFormat = props.dateFormat;
+  }
+
+  if(props.conditions){
+    if(props.conditions.length > 0){     
+      let count = 0;    
+
+      // if(props.renderEnteredInError){
+      //   query.verificationStatus = {
+      //     $nin: ["entered-in-error"]  // unconfirmed | provisional | differential | confirmed | refuted | entered-in-error
+      //   }
+      // }
+
+      props.conditions.forEach(function(condition){
+        if((count >= (page * rowsPerPageToRender)) && (count < (page + 1) * rowsPerPageToRender)){
+          conditionsToRender.push(flattenCondition(condition, dateFormat));
+        }
+        count++;
+      });  
+    }
+  }
+
+  let rowStyle = {
+    cursor: 'pointer'
+  }
+  if(conditionsToRender.length === 0){
+    logger.trace('ConditionsTable: No conditions to render.');
+    // footer = <TableNoData noDataPadding={ props.noDataMessagePadding } />
+  } else {
+    for (var i = 0; i < conditionsToRender.length; i++) {
+      if(get(conditionsToRender[i], 'modifierExtension[0]')){
+        rowStyle.color = "orange";
+      }
+      tableRows.push(
+        <TableRow className="conditionRow" key={i} style={rowStyle} onClick={ rowClick.bind(this, conditionsToRender[i]._id)} style={{cursor: 'pointer'}} hover="true" >            
+          { renderCheckbox() }
+          { renderActionIcons(conditionsToRender[i]) }
+          { renderIdentifier(conditionsToRender.identifier ) }
+          { renderPatientName(conditionsToRender[i].patientDisplay ) } 
+          { renderPatientReference(conditionsToRender[i].patientReference ) }           
+          { renderAsserterName(conditionsToRender[i].asserterDisplay ) } 
+          { renderClinicalStatus(conditionsToRender[i].clinicalStatus)}
+          { renderSnomedCode(conditionsToRender[i].snomedCode)}
+          { renderSnomedDisplay(conditionsToRender[i].snomedDisplay)}
+          { renderVerification(conditionsToRender[i].verificationStatus ) } 
+          { renderSeverity(conditionsToRender[i].severity) }
+          { renderEvidence(conditionsToRender[i].evidenceDisplay) }
+          { renderStartDate(conditionsToRender[i].onsetDateTime) }
+          { renderEndDate(conditionsToRender[i].abatementDateTime) }
+          { renderBarcode(conditionsToRender[i]._id)}
+          { renderActionButton(conditionsToRender[i]) }
+        </TableRow>
+      );    
+    }
+  }
 
   
 
-    let tableRows = [];
-    for (var i = 0; i < this.data.conditions.length; i++) {
-      var newRow = {
-        identifier: '',        
-        patientDisplay: '',
-        asserterDisplay: '',
-        clinicalStatus: '',
-        verificationStatus: '',
-        severity: '',
-        snomedCode: '',
-        snomedDisplay: '',
-        evidenceDisplay: '',
-        barcode: '',
-        onsetDateTime: '',
-        abatementDateTime: ''
-      };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-      newRow.identifier = get(this.data.conditions[i], 'identifier[0].value');
-      newRow.patientDisplay = get(this.data.conditions[i], 'patient.display');
-      newRow.asserterDisplay = get(this.data.conditions[i], 'asserter.display');
-      newRow.clinicalStatus = get(this.data.conditions[i], 'clinicalStatus');
-      newRow.verificationStatus = get(this.data.conditions[i], 'verificationStatus');
-      newRow.snomedCode = get(this.data.conditions[i], 'code.coding[0].code');
-      newRow.snomedDisplay = get(this.data.conditions[i], 'code.coding[0].display');
-      newRow.evidenceDisplay = get(this.data.conditions[i], 'evidence[0].detail[0].display');
-      newRow.barcode = get(this.data.conditions[i], '_id');
-      newRow.severity = get(this.data.conditions[i], 'severity.text');
-      newRow.onsetDateTime = get(this.data.conditions[i], 'onsetDateTime');
-      newRow.abatementDateTime = get(this.data.conditions[i], 'abatementDateTime');
-
-      let rowStyle = {
-        cursor: 'pointer'
-      }
-      if(get(this.data.conditions[i], 'modifierExtension[0]')){
-        rowStyle.color = "orange";
-      }
-
-      tableRows.push(
-        <tr key={i} className="conditionRow" style={rowStyle} onClick={ this.rowClick.bind('this', this.data.conditions[i]._id)} >
-
-          { this.renderCheckbox() }
-          { this.renderActionIcons(this.data.conditions[i]) }
-          { this.renderIdentifier(newRow.identifier ) }
-          { this.renderPatientName(newRow.patientDisplay ) } 
-          { this.renderAsserterName(newRow.asserterDisplay ) } 
-          { this.renderStatus(newRow.clinicalStatus ) } 
-          
-          <td className='snomedCode'>{ newRow.snomedCode }</td>
-          <td className='snomedDisplay' style={{whiteSpace: 'nowrap'}}>{ newRow.snomedDisplay }</td>
-          { this.renderVerification(newRow.verificationStatus ) } 
-          { this.renderSeverity(newRow.severity) }
-          { this.renderEvidence(newRow.evidenceDisplay) }
-          { this.renderStartDate(newRow.onsetDateTime) }
-          { this.renderEndDate(newRow.abatementDateTime) }
-        </tr>
-      )
-    }
-
-
-
-    return(
-      <Table id='conditionsTable' hover >
-        <thead>
-          <tr>
-            { this.renderCheckboxHeader() } 
-            { this.renderActionIconsHeader() }
-            { this.renderIdentifierHeader() }
-            { this.renderPatientNameHeader() }
-            { this.renderAsserterNameHeader() }
-            { this.renderStatusHeader() }
-            
-            <th className='snomedCode'>Code</th>
-            <th className='snomedDisplay'>Condition</th>
-
-            { this.renderVerificationHeader() }
-            { this.renderSeverityHeader() }
-            { this.renderEvidenceHeader() }
-            { this.renderDateHeader('Start') }
-            { this.renderDateHeader('End') }
-          </tr>
-        </thead>
-        <tbody>
-          { tableRows }
-        </tbody>
-      </Table>
-    );
+  let paginationFooter;
+  if(props.disablePagination){
+    paginationFooter = <TablePagination
+      component="div"
+      rowsPerPageOptions={[5, 10, 25, 100]}
+      colSpan={3}
+      count={paginationCount}
+      rowsPerPage={rowsPerPageToRender}
+      page={page}
+      onChangePage={handleChangePage}
+      style={{float: 'right', border: 'none'}}
+    />
   }
+
+  return(
+    <div>
+      <Table id='conditionsTable'>
+        <TableHead>
+          <TableRow>
+            { renderCheckboxHeader() } 
+            { renderActionIconsHeader() }
+            { renderIdentifierHeader() }
+            { renderPatientNameHeader() }
+            { renderPatientReferenceHeader() }
+            { renderAsserterNameHeader() }
+            { renderClinicalStatusHeader() }
+            { renderSnomedCodeHeader() }
+            { renderSnomedDisplayHeader() }          
+            { renderVerificationHeader() }
+            { renderSeverityHeader() }
+            { renderEvidenceHeader() }
+            { renderDateHeader('Start') }
+            { renderDateHeader('End') }
+            { renderBarcodeHeader() }
+            { renderActionButtonHeader() }
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          { tableRows }
+        </TableBody>
+      </Table>
+    { paginationFooter }
+    </div>
+  );
 }
+
 
 ConditionsTable.propTypes = {
   data: PropTypes.array,
+  conditions: PropTypes.array,
   query: PropTypes.object,
   paginationLimit: PropTypes.number,
-  status: PropTypes.string,
-  displayStatus: PropTypes.bool,
-  displayVerification: PropTypes.bool,
-  hideIdentifier: PropTypes.bool,
-  hideCheckboxes: PropTypes.bool,
-  hideActionIcons: PropTypes.bool,
-  hidePatientName: PropTypes.bool,
-  hideAsserterName: PropTypes.bool,
-  hideEvidence: PropTypes.bool,
-  hideDates: PropTypes.bool,
-  hideSeverity: PropTypes.bool,
-  hideEnteredInError: PropTypes.bool
+  disablePagination: PropTypes.bool,
+
+  renderCheckboxes: PropTypes.bool,
+  renderActionIcons: PropTypes.bool,
+  renderIdentifier: PropTypes.bool,
+  renderPatientName: PropTypes.bool,
+  renderPatientReference: PropTypes.bool,
+  renderAsserterName: PropTypes.bool,
+  renderClinicalStatus: PropTypes.bool,
+  renderSnomedCode: PropTypes.bool,
+  renderSnomedDisplay: PropTypes.bool,
+  renderVerification: PropTypes.bool,
+  renderServerity: PropTypes.bool,
+  renderEvidence: PropTypes.bool,
+  renderDates: PropTypes.bool,
+  renderBarcode: PropTypes.bool,
+
+  onCellClick: PropTypes.func,
+  onRowClick: PropTypes.func,
+  onMetaClick: PropTypes.func,
+  onRemoveRecord: PropTypes.func,
+  onActionButtonClick: PropTypes.func,
+  showActionButton: PropTypes.bool,
+  actionButtonLabel: PropTypes.string,
+
+  rowsPerPage: PropTypes.number,
+  dateFormat: PropTypes.string,
+  showMinutes: PropTypes.bool,
+  renderEnteredInError: PropTypes.bool
 };
-ReactMixin(ConditionsTable.prototype, ReactMeteorData);
+
+ConditionsTable.defaultProps = {
+  renderCheckboxes: false,
+  renderActionIcons: false,
+  renderIdentifier: false,
+  renderPatientName: true,
+  renderPatientReference: true,
+  renderAsserterName: true,
+  renderClinicalStatus: true,
+  renderSnomedCode: true,
+  renderSnomedDisplay: true,
+  renderVerification: true,
+  renderServerity: true,
+  renderEvidence: true,
+  renderDates: true,
+  renderBarcode: false,
+  disablePagination: false
+}
+
 export default ConditionsTable;

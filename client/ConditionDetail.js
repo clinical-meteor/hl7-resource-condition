@@ -6,8 +6,27 @@
 //
 // =======================================================================
 
-import { CardActions, CardText, DatePicker, RaisedButton, TextField } from 'material-ui';
+import { DatePicker, RaisedButton, TextField } from 'material-ui';
 
+import { 
+  Button,
+  Card,
+  Checkbox,
+  CardActions,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableFooter,
+  TablePagination,
+  IconButton,
+  FirstPageIcon,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  LastPageIcon
+} from '@material-ui/core';
 
 import React from 'react';
 import { ReactMeteorData } from 'meteor/react-meteor-data';
@@ -15,7 +34,7 @@ import ReactMixin from 'react-mixin';
 import { get, set } from 'lodash';
 import PropTypes from 'prop-types';
 import { Col, Grid, Row } from 'react-bootstrap';
-import { moment } from 'meteor/momentjs:moment'
+import { moment } from 'meteor/momentjs:moment';
 
 export class ConditionDetail extends React.Component {
   constructor(props) {
@@ -151,7 +170,7 @@ export class ConditionDetail extends React.Component {
 
     return (
       <div id={this.props.id} className="conditionDetail">
-        <CardText>
+        <CardContent>
           <Row>
             <Col md={6} >
               <TextField
@@ -238,7 +257,7 @@ export class ConditionDetail extends React.Component {
 
           <a href='http://browser.ihtsdotools.org/?perspective=full&conceptId1=404684003&edition=us-edition&release=v20180301&server=https://prod-browser-exten.ihtsdotools.org/api/snomed&langRefset=900000000000509007'>Lookup codes with the SNOMED CT Browser</a>
 
-        </CardText>
+        </CardContent>
         <CardActions>
           { this.determineButtons(this.state.conditionId) }
         </CardActions>
