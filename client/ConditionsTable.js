@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-// import { Card, CardActions, CardMedia, CardText, CardTitle, Checkbox } from 'material-ui';
-
 import { 
   Button,
   Card,

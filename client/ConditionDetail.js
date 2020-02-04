@@ -6,26 +6,16 @@
 //
 // =======================================================================
 
-import { DatePicker, RaisedButton, TextField } from 'material-ui';
-
 import { 
   Button,
   Card,
   Checkbox,
   CardActions,
   CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TableFooter,
-  TablePagination,
-  IconButton,
-  FirstPageIcon,
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
-  LastPageIcon
+  CardHeader,
+  TextField,
+  Select,
+  MenuItem,
 } from '@material-ui/core';
 
 import React from 'react';
@@ -146,16 +136,17 @@ export class ConditionDetail extends React.Component {
       datePickerValue = new Date(datePickerValue);
     }
     if (showDatePicker) {
-      return (
-        <DatePicker 
-          name='onsetDateTime'
-          hintText="Onset Date" 
-          container="inline" 
-          mode="landscape"
-          value={ datePickerValue ? datePickerValue : null }    
-          onChange={ this.changeState.bind(this, 'onsetDateTime')}      
-          />
-      );
+      return (<div></div>)
+      // return (
+      //   <DatePicker 
+      //     name='onsetDateTime'
+      //     hintText="Onset Date" 
+      //     container="inline" 
+      //     mode="landscape"
+      //     value={ datePickerValue ? datePickerValue : null }    
+      //     onChange={ this.changeState.bind(this, 'onsetDateTime')}      
+      //     />
+      // );      
     }
   }
   setHint(text){
@@ -171,85 +162,77 @@ export class ConditionDetail extends React.Component {
     return (
       <div id={this.props.id} className="conditionDetail">
         <CardContent>
-          <Row>
-            <Col md={6} >
+          <Grid container spacing={3}>
+            <Grid item xs={6}>
               <TextField
                 id='patientDisplayInput'
                 name='patientDisplay'
-                floatingLabelText='Patient'
+                label='Patient'
                 value={ get(this, 'data.form.patientDisplay', '') }
                 onChange={ this.changeState.bind(this, 'patientDisplay')}
                 hintText={ this.setHint('Jane Doe') }
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-            <Col md={6} >
+
               <TextField
                 id='asserterDisplayInput'
                 name='asserterDisplay'
-                floatingLabelText='Asserter'
+                label='Asserter'
                 value={ get(this, 'data.form.asserterDisplay', '') }
                 onChange={ this.changeState.bind(this, 'asserterDisplay')}
                 hintText={ this.setHint('Nurse Jackie') }
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6} >
+
               <TextField
                 id='snomedCodeInput'
                 name='snomedCode'
-                floatingLabelText='SNOMED Code'
+                label='SNOMED Code'
                 value={ get(this, 'data.form.snomedCode', '') }
                 hintText={ this.setHint('307343001') }
                 onChange={ this.changeState.bind(this, 'snomedCode')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-            <Col md={6} >
+
               <TextField
                 id='snomedDisplayInput'
                 name='snomedDisplay'
-                floatingLabelText='SNOMED Display'
+                label='SNOMED Display'
                 value={ get(this, 'data.form.snomedDisplay', '') }
                 onChange={ this.changeState.bind(this, 'snomedDisplay')}
                 hintText={ this.setHint('Acquired hemoglobin H disease (disorder)') }
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6} >
+
               <TextField
                 id='clinicalStatusInput'
                 name='clinicalStatus'
-                floatingLabelText='Clinical Status'
+                label='Clinical Status'
                 value={ get(this, 'data.form.clinicalStatus', '') }
                 hintText={ this.setHint('active | recurrence | inactive | remission | resolved') }
                 onChange={ this.changeState.bind(this, 'clinicalStatus')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-            <Col md={6} >
+
               <TextField
                 id='verificationStatusInput'
                 name='verificationStatus'
-                floatingLabelText='Verification Status'
+                label='Verification Status'
                 value={ get(this, 'data.form.verificationStatus', '') }
                 hintText={ this.setHint('provisional | differential | confirmed | refuted | entered-in-error | unknown') }
                 onChange={ this.changeState.bind(this, 'verificationStatus')}
-                floatingLabelFixed={true}
+                //floatingLabelFixed={true}
                 fullWidth
                 /><br/>
-            </Col>
-          </Row>
-
+            </Grid>
+            <Grid item xs={6}>
+            </Grid>
+          </Grid>
 
           <br/>
           { this.renderDatePicker(this.data.showDatePicker, get(this, 'data.form') ) }
@@ -269,14 +252,13 @@ export class ConditionDetail extends React.Component {
     if (conditionId) {
       return (
         <div>
-          <RaisedButton id="updateConditionButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}}  />
-          <RaisedButton id="deleteConditionButton" label="Delete" onClick={this.handleDeleteButton.bind(this)} />
-
+          <Button id="updateConditionButton" primary={true} onClick={this.handleSaveButton.bind(this)} style={{marginRight: '20px'}} >Save</Button>
+          <Button id="deleteConditionButton" onClick={this.handleDeleteButton.bind(this)} >Delete</Button>
         </div>
       );
     } else {
       return(
-        <RaisedButton id="saveConditionButton" label="Save" primary={true} onClick={this.handleSaveButton.bind(this)} />
+        <Button id="saveConditionButton" primary={true} onClick={this.handleSaveButton.bind(this)} >Save</Button>
       );
     }
   }
@@ -399,13 +381,13 @@ export class ConditionDetail extends React.Component {
         {_id: this.state.conditionId}, {$set: fhirConditionData }, function(error, result) {
           if (error) {
             console.log("error", error);
-            Bert.alert(error.reason, 'danger');
+            // Bert.alert(error.reason, 'danger');
           }
           if (result) {
             if(self.props.onUpdate){
               self.props.onUpdate(self.data.conditionId);
             }
-            Bert.alert('Condition updated!', 'success');
+            // Bert.alert('Condition updated!', 'success');
           }
         });
     } else {
@@ -415,13 +397,13 @@ export class ConditionDetail extends React.Component {
       Conditions._collection.insert(fhirConditionData, function(error, result) {
         if (error) {
           console.log("error", error);
-          Bert.alert(error.reason, 'danger');
+          // Bert.alert(error.reason, 'danger');
         }
         if (result) {
           if(self.props.onInsert){
             self.props.onInsert(self.data.conditionId);
           }
-          Bert.alert('Condition added!', 'success');
+          // Bert.alert('Condition added!', 'success');
         }
       });
     }
@@ -439,13 +421,13 @@ export class ConditionDetail extends React.Component {
     let self = this;
     Conditions._collection.remove({_id: this.state.conditionId}, function(error, result){
       if (error) {
-        Bert.alert(error.reason, 'danger');
+        // Bert.alert(error.reason, 'danger');
       }
       if (result) {
         if(this.props.onInsert){
           this.props.onInsert(self.data.conditionId);
         }
-        Bert.alert('Condition removed!', 'success');
+        // Bert.alert('Condition removed!', 'success');
       }
     });
   }
